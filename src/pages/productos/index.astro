@@ -1,0 +1,462 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getProducts, getCategories } from '../../lib/strapi.js';
+
+const productsData = await getProducts();
+const categoriesData = await getCategories();
+
+const allProducts = productsData?.data || [];
+const categorias = categoriesData?.data || [];
+
+const STRAPI_URL = 'https://kravex-project.onrender.com';
+
+// Serialize for client-side JS
+const productsJSON = JSON.stringify(allProducts);
+const STRAPI_URL_CLIENT = STRAPI_URL;
+---
+
+<Layout title="Colección Premium | KRAVEX" description="Explora la colección completa de ropa old school y fragancias de lujo KRAVEX">
+
+  <!-- PAGE HEADER -->
+  <section style="padding: 80px 32px 40px; max-width:1280px; margin:0 auto;">
+    <nav style="margin-bottom:24px;">
+      <span style="color:#444; font-size:11px; letter-spacing:0.1em;">
+        <a href="/" style="color:#444; text-decoration:none;">INICIO</a>
+        <span style="margin:0 8px;">›</span>
+        <span style="color:#fff;">COLECCIÓN</span>
+      </span>
+    </nav>
+    <h1 class="font-bold text-white" style="font-size:clamp(32px,5vw,56px); letter-spacing:-0.02em; margin-bottom:8px;">Colección Premium</h1>
+    <p style="color:#555; font-size:14px;">Selección curada de ropa old school y fragancias de lujo</p>
+  </section>
+
+  <!-- MAIN LAYOUT -->
+  <div style="max-width:1280px; margin:0 auto; padding:0 32px 80px; display:grid; grid-template-columns:240px 1fr; gap:40px;" id="main-layout">
+
+    <!-- SIDEBAR FILTERS -->
+    <aside>
+      <!-- Search -->
+      <div style="margin-bottom:32px;">
+        <p style="color:#D4AF37; font-size:10px; font-weight:700; letter-spacing:0.3em; margin-bottom:12px;">BUSCAR</p>
+        <input
+          type="text"
+          id="search-input"
+          placeholder="Buscar productos..."
+          style="width:100%; background:transparent; border:1px solid #222; color:#fff; padding:12px 16px; font-size:12px; outline:none; font-family:inherit; transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='#D4AF37'"
+          onblur="this.style.borderColor='#222'"
+        />
+      </div>
+
+      <!-- Categories -->
+      <div style="margin-bottom:32px;">
+        <p style="color:#D4AF37; font-size:10px; font-weight:700; letter-spacing:0.3em; margin-bottom:12px;">CATEGORÍA</p>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <label class="filter-label" style="display:flex; align-items:center; gap:10px; cursor:pointer; color:#888; font-size:13px; transition:color 0.2s;">
+            <input type="checkbox" value="all" id="cat-all" class="cat-filter" checked style="accent-color:#D4AF37;" />
+            Todos los productos
+          </label>
+          {categorias.map(cat => (
+            <label class="filter-label" style="display:flex; align-items:center; gap:10px; cursor:pointer; color:#888; font-size:13px; transition:color 0.2s;">
+              <input type="checkbox" value={cat.attributes.slug} class="cat-filter" style="accent-color:#D4AF37;" />
+              {cat.attributes.nombre}
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <!-- Price Range -->
+      <div style="margin-bottom:32px;">
+        <p style="color:#D4AF37; font-size:10px; font-weight:700; letter-spacing:0.3em; margin-bottom:12px;">PRECIO</p>
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <span id="price-min" style="color:#888; font-size:12px;">€0</span>
+          <span id="price-max" style="color:#888; font-size:12px;">€300</span>
+        </div>
+        <input type="range" id="price-range" min="0" max="300" value="300" step="10"
+          style="width:100%; accent-color:#D4AF37;" />
+      </div>
+
+      <!-- Sort -->
+      <div style="margin-bottom:32px;">
+        <p style="color:#D4AF37; font-size:10px; font-weight:700; letter-spacing:0.3em; margin-bottom:12px;">ORDENAR</p>
+        <select id="sort-select" style="width:100%; background:#1A1A1A; border:1px solid #222; color:#fff; padding:12px 16px; font-size:12px; outline:none; font-family:inherit; cursor:pointer;">
+          <option value="default">Recomendados</option>
+          <option value="price-asc">Precio: menor a mayor</option>
+          <option value="price-desc">Precio: mayor a menor</option>
+          <option value="name-asc">Nombre: A-Z</option>
+          <option value="name-desc">Nombre: Z-A</option>
+        </select>
+      </div>
+
+      <!-- Reset -->
+      <button id="reset-filters" style="width:100%; border:1px solid #333; background:transparent; color:#666; padding:12px; font-size:10px; font-weight:700; letter-spacing:0.2em; cursor:pointer; font-family:inherit; transition:all 0.2s;"
+        onmouseover="this.style.borderColor='#D4AF37';this.style.color='#D4AF37'"
+        onmouseout="this.style.borderColor='#333';this.style.color='#666'"
+      >
+        RESETEAR FILTROS
+      </button>
+    </aside>
+
+    <!-- PRODUCTS AREA -->
+    <div>
+      <!-- Top bar -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:32px; padding-bottom:16px; border-bottom:1px solid #1a1a1a;">
+        <span id="results-count" style="color:#555; font-size:13px;">30 productos</span>
+        <span id="page-info" style="color:#555; font-size:13px;">Página 1</span>
+      </div>
+
+      <!-- Loading state -->
+      <div id="loading-state" style="display:none; text-align:center; padding:80px 0;">
+        <div style="width:32px; height:32px; border:2px solid #222; border-top-color:#D4AF37; border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 16px;"></div>
+        <p style="color:#444; font-size:12px; letter-spacing:0.2em;">CARGANDO...</p>
+      </div>
+
+      <!-- No results -->
+      <div id="no-results" style="display:none; text-align:center; padding:80px 0;">
+        <p style="color:#444; font-size:32px; margin-bottom:16px;">★</p>
+        <p style="color:#666; font-size:14px; margin-bottom:8px;">No se encontraron productos</p>
+        <p style="color:#444; font-size:12px;">Intenta con otros filtros</p>
+      </div>
+
+      <!-- Products Grid -->
+      <div id="products-grid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:24px;">
+        <!-- Filled by JS -->
+      </div>
+
+      <!-- Pagination -->
+      <div id="pagination" style="display:flex; justify-content:center; align-items:center; gap:8px; margin-top:48px;">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODUCT MODAL -->
+  <div id="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:300; align-items:center; justify-content:center; padding:20px;">
+    <div id="modal-box" style="background:#1A1A1A; border:1px solid rgba(212,175,55,0.15); max-width:900px; width:100%; max-height:90vh; overflow-y:auto; display:grid; grid-template-columns:1fr 1fr; position:relative;">
+      <button id="modal-close" style="position:absolute; top:16px; right:16px; background:none; border:none; color:#666; font-size:20px; cursor:pointer; z-index:10; line-height:1;">✕</button>
+      
+      <!-- Image -->
+      <div id="modal-img-wrap" style="background:#151515; aspect-ratio:3/4; overflow:hidden;">
+        <img id="modal-img" src="" alt="" style="width:100%; height:100%; object-fit:cover;" />
+      </div>
+      
+      <!-- Info -->
+      <div style="padding:40px; display:flex; flex-direction:column; justify-content:space-between;">
+        <div>
+          <p id="modal-cat" style="color:#D4AF37; font-size:10px; font-weight:700; letter-spacing:0.3em; margin-bottom:12px;"></p>
+          <h2 id="modal-name" style="color:#fff; font-size:24px; font-weight:700; margin-bottom:8px; line-height:1.2;"></h2>
+          <p id="modal-price" style="color:#D4AF37; font-size:28px; font-weight:700; margin-bottom:24px;"></p>
+          <p id="modal-desc" style="color:#666; font-size:14px; line-height:1.8; margin-bottom:32px;"></p>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <button id="modal-add-cart" style="background:#D4AF37; color:#000; border:none; padding:16px; font-size:11px; font-weight:800; letter-spacing:0.25em; cursor:pointer; font-family:inherit; transition:background 0.2s;"
+            onmouseover="this.style.background='#B8941F'"
+            onmouseout="this.style.background='#D4AF37'"
+          >
+            AGREGAR AL CARRITO
+          </button>
+          <a id="modal-link" href="#" style="border:1px solid #333; color:#888; padding:16px; font-size:11px; font-weight:700; letter-spacing:0.2em; text-align:center; text-decoration:none; transition:all 0.2s;"
+            onmouseover="this.style.borderColor='#D4AF37';this.style.color='#D4AF37'"
+            onmouseout="this.style.borderColor='#333';this.style.color='#888'"
+          >
+            VER PÁGINA COMPLETA
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</Layout>
+
+<style>
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .prod-card:hover .prod-img { transform: scale(1.06); }
+  .prod-card:hover .prod-overlay { opacity: 1 !important; }
+
+  @media (max-width: 1024px) {
+    #main-layout { grid-template-columns: 200px 1fr !important; gap: 24px !important; }
+    #products-grid { grid-template-columns: repeat(2,1fr) !important; }
+  }
+
+  @media (max-width: 768px) {
+    #main-layout { grid-template-columns: 1fr !important; }
+    #products-grid { grid-template-columns: repeat(2,1fr) !important; }
+  }
+
+  @media (max-width: 500px) {
+    #products-grid { grid-template-columns: 1fr !important; }
+    #modal-box { grid-template-columns: 1fr !important; }
+  }
+</style>
+
+<script define:vars={{ productsJSON, STRAPI_URL_CLIENT }}>
+  const allProducts = JSON.parse(productsJSON);
+  const STRAPI = STRAPI_URL_CLIENT;
+  const PER_PAGE = 9;
+
+  let currentPage = 1;
+  let filtered = [...allProducts];
+
+  // ── HELPERS ──────────────────────────────────────────────
+  function getDesc(product) {
+    const content = product.attributes.descripcion;
+    if (!content || !Array.isArray(content)) return '';
+    return content.map(b => b.children?.map(c => c.text).join('') || '').join(' ');
+  }
+
+  function getImgUrl(product) {
+    const img = product.attributes.imagen?.data?.attributes;
+    if (!img) return null;
+    const url = img.formats?.medium?.url || img.url;
+    return `${STRAPI}${url}`;
+  }
+
+  // ── FILTER + SORT ─────────────────────────────────────────
+  function applyFilters() {
+    // Search with regex (PDF requirement)
+    const searchVal = document.getElementById('search-input').value.trim();
+    let searchRegex = null;
+    if (searchVal) {
+      try {
+        // Normalize text for search
+        const normalized = searchVal.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        searchRegex = new RegExp(normalized, 'i');
+      } catch(e) {
+        searchRegex = null;
+      }
+    }
+
+    // Category filter
+    const checkedCats = [...document.querySelectorAll('.cat-filter:checked')].map(c => c.value);
+    const allChecked = checkedCats.includes('all');
+
+    // Price filter
+    const maxPrice = parseInt(document.getElementById('price-range').value);
+
+    // Apply filters using array methods (PDF requirement)
+    filtered = allProducts.filter(p => {
+      const { nombre, precio, categoria } = p.attributes;
+      const catSlug = categoria?.data?.attributes?.slug || '';
+
+      // Category check
+      if (!allChecked && !checkedCats.includes(catSlug)) return false;
+
+      // Price check
+      if (precio > maxPrice) return false;
+
+      // Search check with normalization (PDF requirement)
+      if (searchRegex) {
+        const normalizedNombre = nombre.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        const normalizedDesc = getDesc(p).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        if (!searchRegex.test(normalizedNombre) && !searchRegex.test(normalizedDesc)) return false;
+      }
+
+      return true;
+    });
+
+    // Sort using array methods (PDF requirement)
+    const sortVal = document.getElementById('sort-select').value;
+    filtered.sort((a, b) => {
+      if (sortVal === 'price-asc') return a.attributes.precio - b.attributes.precio;
+      if (sortVal === 'price-desc') return b.attributes.precio - a.attributes.precio;
+      if (sortVal === 'name-asc') return a.attributes.nombre.localeCompare(b.attributes.nombre);
+      if (sortVal === 'name-desc') return b.attributes.nombre.localeCompare(a.attributes.nombre);
+      return 0;
+    });
+
+    currentPage = 1;
+    renderProducts();
+  }
+
+  // ── RENDER ────────────────────────────────────────────────
+  function renderProducts() {
+    const grid = document.getElementById('products-grid');
+    const noResults = document.getElementById('no-results');
+    const count = document.getElementById('results-count');
+    const pageInfo = document.getElementById('page-info');
+
+    count.textContent = `${filtered.length} producto${filtered.length !== 1 ? 's' : ''}`;
+
+    if (filtered.length === 0) {
+      grid.style.display = 'none';
+      noResults.style.display = 'block';
+      document.getElementById('pagination').innerHTML = '';
+      return;
+    }
+
+    noResults.style.display = 'none';
+    grid.style.display = 'grid';
+
+    // Pagination using slice (PDF requirement)
+    const totalPages = Math.ceil(filtered.length / PER_PAGE);
+    const start = (currentPage - 1) * PER_PAGE;
+    const pageProducts = filtered.slice(start, start + PER_PAGE);
+
+    pageInfo.textContent = `Página ${currentPage} de ${totalPages}`;
+
+    // Render cards
+    grid.innerHTML = pageProducts.map(p => {
+      const { nombre, precio, slug, categoria } = p.attributes;
+      const catNombre = categoria?.data?.attributes?.nombre || 'Premium';
+      const imgUrl = getImgUrl(p);
+
+      return `
+        <div class="prod-card" style="cursor:pointer;" onclick="openModal(${p.id})">
+          <div style="position:relative; aspect-ratio:3/4; background:#1A1A1A; overflow:hidden; margin-bottom:16px;">
+            ${imgUrl
+              ? `<img src="${imgUrl}" alt="${nombre}" loading="lazy" class="prod-img" style="width:100%; height:100%; object-fit:cover; transition:transform 0.6s ease; display:block;" />`
+              : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#222;font-size:32px;background:#151515;">★</div>`
+            }
+            <div class="prod-overlay" style="position:absolute;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.3s;">
+              <span style="color:#D4AF37;font-size:10px;font-weight:700;letter-spacing:0.3em;border:1px solid #D4AF37;padding:10px 20px;">VER PRODUCTO</span>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+            <div>
+              <p style="color:#555;font-size:10px;letter-spacing:0.2em;margin-bottom:4px;">${catNombre.toUpperCase()}</p>
+              <h3 style="color:#fff;font-size:14px;font-weight:600;">${nombre}</h3>
+            </div>
+            <span style="color:#D4AF37;font-size:14px;font-weight:700;white-space:nowrap;">€${precio}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    renderPagination(totalPages);
+  }
+
+  // ── PAGINATION ────────────────────────────────────────────
+  function renderPagination(totalPages) {
+    const pag = document.getElementById('pagination');
+    if (totalPages <= 1) { pag.innerHTML = ''; return; }
+
+    let html = '';
+
+    // Prev
+    html += `<button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}
+      style="background:transparent;border:1px solid ${currentPage === 1 ? '#222' : '#333'};color:${currentPage === 1 ? '#333' : '#888'};padding:10px 16px;cursor:${currentPage === 1 ? 'default' : 'pointer'};font-family:inherit;font-size:11px;letter-spacing:0.1em;">
+      ← PREV
+    </button>`;
+
+    // Page numbers
+    for (let i = 1; i <= totalPages; i++) {
+      html += `<button onclick="goToPage(${i})"
+        style="background:${i === currentPage ? '#D4AF37' : 'transparent'};border:1px solid ${i === currentPage ? '#D4AF37' : '#333'};color:${i === currentPage ? '#000' : '#888'};padding:10px 16px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:${i === currentPage ? '700' : '400'};">
+        ${i}
+      </button>`;
+    }
+
+    // Next
+    html += `<button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}
+      style="background:transparent;border:1px solid ${currentPage === totalPages ? '#222' : '#333'};color:${currentPage === totalPages ? '#333' : '#888'};padding:10px 16px;cursor:${currentPage === totalPages ? 'default' : 'pointer'};font-family:inherit;font-size:11px;letter-spacing:0.1em;">
+      NEXT →
+    </button>`;
+
+    pag.innerHTML = html;
+  }
+
+  window.goToPage = function(page) {
+    const totalPages = Math.ceil(filtered.length / PER_PAGE);
+    if (page < 1 || page > totalPages) return;
+    currentPage = page;
+    renderProducts();
+    window.scrollTo({ top: 200, behavior: 'smooth' });
+  };
+
+  // ── MODAL ─────────────────────────────────────────────────
+  window.openModal = function(id) {
+    const product = allProducts.find(p => p.id === id);
+    if (!product) return;
+
+    const { nombre, precio, slug, categoria, descripcion } = product.attributes;
+    const catNombre = categoria?.data?.attributes?.nombre || 'Premium';
+    const imgUrl = getImgUrl(product);
+    const desc = getDesc(product);
+
+    document.getElementById('modal-cat').textContent = catNombre.toUpperCase();
+    document.getElementById('modal-name').textContent = nombre;
+    document.getElementById('modal-price').textContent = `€${precio}`;
+    document.getElementById('modal-desc').textContent = desc;
+    document.getElementById('modal-link').href = `/productos/${slug}`;
+
+    const imgEl = document.getElementById('modal-img');
+    if (imgUrl) {
+      imgEl.src = imgUrl;
+      imgEl.alt = nombre;
+      document.getElementById('modal-img-wrap').style.display = 'block';
+    } else {
+      document.getElementById('modal-img-wrap').style.display = 'none';
+    }
+
+    // Cart button
+    document.getElementById('modal-add-cart').onclick = () => {
+     if (typeof window.addToCart === 'function') {
+    window.addToCart(id, nombre, precio, imgUrl);
+     }
+  closeModal();
+    };
+
+    const overlay = document.getElementById('modal-overlay');
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.closeModal = function() {
+    document.getElementById('modal-overlay').style.display = 'none';
+    document.body.style.overflow = '';
+  };
+
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  document.getElementById('modal-overlay').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  });
+
+  // ── EVENT LISTENERS ───────────────────────────────────────
+  document.getElementById('search-input').addEventListener('input', applyFilters);
+  document.getElementById('sort-select').addEventListener('change', applyFilters);
+  document.getElementById('price-range').addEventListener('input', function() {
+    document.getElementById('price-max').textContent = `€${this.value}`;
+    applyFilters();
+  });
+
+  // Category checkboxes - mutual exclusion with "all"
+  document.querySelectorAll('.cat-filter').forEach(cb => {
+    cb.addEventListener('change', function() {
+      if (this.value === 'all') {
+        document.querySelectorAll('.cat-filter:not(#cat-all)').forEach(c => c.checked = false);
+      } else {
+        document.getElementById('cat-all').checked = false;
+      }
+      if ([...document.querySelectorAll('.cat-filter:checked')].length === 0) {
+        document.getElementById('cat-all').checked = true;
+      }
+      applyFilters();
+    });
+  });
+
+  // Reset filters
+  document.getElementById('reset-filters').addEventListener('click', () => {
+    document.getElementById('search-input').value = '';
+    document.getElementById('cat-all').checked = true;
+    document.querySelectorAll('.cat-filter:not(#cat-all)').forEach(c => c.checked = false);
+    document.getElementById('price-range').value = 300;
+    document.getElementById('price-max').textContent = '€300';
+    document.getElementById('sort-select').value = 'default';
+    applyFilters();
+  });
+
+  // Handle URL params (e.g. ?categoria=fragancias)
+  const urlParams = new URLSearchParams(window.location.search);
+  const catParam = urlParams.get('categoria');
+  if (catParam) {
+    document.getElementById('cat-all').checked = false;
+    const catCb = document.querySelector(`.cat-filter[value="${catParam}"]`);
+    if (catCb) catCb.checked = true;
+  }
+
+  // Initial render
+  applyFilters();
+</script>

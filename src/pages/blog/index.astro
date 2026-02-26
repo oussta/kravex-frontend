@@ -1,0 +1,109 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getBlogs } from '../../lib/strapi.js';
+
+const blogsData = await getBlogs();
+const blogs = blogsData?.data || [];
+
+const STRAPI_URL = 'https://kravex-project.onrender.com';
+
+function getExcerpt(contenido) {
+  if (!contenido || !Array.isArray(contenido)) return '';
+  const text = contenido.map(b => b.children?.map(c => c.text).join('') || '').join(' ');
+  return text.slice(0, 160) + '...';
+}
+---
+
+<Layout title="Editorial | KRAVEX" description="Artículos sobre moda old school, fragancias de lujo y estilo masculino premium">
+
+  <!-- HEADER -->
+  <section style="padding:100px 32px 60px;max-width:1280px;margin:0 auto;text-align:center;">
+    <p style="color:#D4AF37;font-size:10px;font-weight:700;letter-spacing:0.4em;margin-bottom:16px;">KRAVEX JOURNAL</p>
+    <h1 style="color:#fff;font-size:clamp(36px,6vw,72px);font-weight:700;letter-spacing:-0.03em;margin-bottom:16px;">Editorial</h1>
+    <p style="color:#555;font-size:15px;max-width:480px;margin:0 auto;">Guías de estilo, análisis de fragancias y reflexiones sobre moda masculina premium.</p>
+  </section>
+
+  <!-- FEATURED POST (first blog) -->
+  {blogs[0] && (() => {
+    const { titulo, slug, contenido, tiempo_lectura, imagen, categoria } = blogs[0].attributes;
+    const imgUrl = imagen?.data?.attributes?.url;
+    const excerpt = getExcerpt(contenido);
+    const catNombre = categoria?.data?.attributes?.nombre || 'Editorial';
+    return (
+      <section style="max-width:1280px;margin:0 auto;padding:0 32px 80px;">
+        <a href={`/blog/${slug}`} style="text-decoration:none;display:grid;grid-template-columns:1fr 1fr;gap:0;background:#1A1A1A;border:1px solid rgba(212,175,55,0.08);overflow:hidden;transition:border-color 0.3s;" class="featured-card" id="featured-card">
+          <div style="aspect-ratio:4/3;background:#151515;overflow:hidden;">
+            {imgUrl
+              ? <img src={`${STRAPI_URL}${imgUrl}`} alt={titulo} style="width:100%;height:100%;object-fit:cover;transition:transform 0.6s;" class="featured-img" />
+              : <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a1a,#0a0a0a);">
+                  <span style="color:#D4AF37;font-size:80px;opacity:0.15;">★</span>
+                </div>
+            }
+          </div>
+          <div style="padding:48px;display:flex;flex-direction:column;justify-content:center;">
+            <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
+              <span style="background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.2);color:#D4AF37;font-size:9px;font-weight:700;letter-spacing:0.3em;padding:4px 12px;">DESTACADO</span>
+              <span style="color:#444;font-size:11px;">{tiempo_lectura || 5} min lectura</span>
+            </div>
+            <h2 style="color:#fff;font-size:clamp(20px,2.5vw,30px);font-weight:700;letter-spacing:-0.02em;line-height:1.2;margin-bottom:16px;">{titulo}</h2>
+            <p style="color:#555;font-size:14px;line-height:1.8;margin-bottom:28px;">{excerpt}</p>
+            <span style="color:#D4AF37;font-size:11px;font-weight:700;letter-spacing:0.2em;">LEER ARTÍCULO →</span>
+          </div>
+        </a>
+      </section>
+    );
+  })()}
+
+  <!-- BLOG GRID (rest of posts) -->
+  <section style="max-width:1280px;margin:0 auto;padding:0 32px 96px;">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:40px;padding-bottom:16px;border-bottom:1px solid #1a1a1a;">
+      <h2 style="color:#fff;font-size:18px;font-weight:700;letter-spacing:-0.01em;">Todos los Artículos</h2>
+      <span style="color:#444;font-size:12px;">{blogs.length} artículos</span>
+    </div>
+
+    <div id="blog-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px;">
+      {blogs.slice(1).map(blog => {
+        const { titulo, slug, contenido, tiempo_lectura, imagen, categoria } = blog.attributes;
+        const imgUrl = imagen?.data?.attributes?.formats?.medium?.url || imagen?.data?.attributes?.url;
+        const excerpt = getExcerpt(contenido);
+        const catNombre = categoria?.data?.attributes?.nombre || 'Editorial';
+        return (
+          <a href={`/blog/${slug}`} style="text-decoration:none;" class="blog-card">
+            <div style="aspect-ratio:16/9;background:#1A1A1A;overflow:hidden;margin-bottom:20px;">
+              {imgUrl
+                ? <img src={`${STRAPI_URL}${imgUrl}`} alt={titulo} loading="lazy" class="blog-img" style="width:100%;height:100%;object-fit:cover;transition:transform 0.6s;" />
+                : <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a1a,#0a0a0a);">
+                    <span style="color:#D4AF37;font-size:40px;opacity:0.15;">★</span>
+                  </div>
+              }
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+              <span style="color:#D4AF37;font-size:10px;font-weight:700;letter-spacing:0.2em;">{catNombre.toUpperCase()}</span>
+              <span style="color:#333;font-size:11px;">·</span>
+              <span style="color:#444;font-size:11px;">{tiempo_lectura || 5} min</span>
+            </div>
+            <h3 style="color:#fff;font-size:16px;font-weight:700;line-height:1.3;margin-bottom:10px;letter-spacing:-0.01em;">{titulo}</h3>
+            <p style="color:#555;font-size:13px;line-height:1.7;">{excerpt}</p>
+          </a>
+        );
+      })}
+    </div>
+  </section>
+
+</Layout>
+
+<style>
+  #featured-card:hover { border-color: rgba(212,175,55,0.3) !important; }
+  #featured-card:hover .featured-img { transform: scale(1.04); }
+  .blog-card:hover .blog-img { transform: scale(1.06) !important; }
+  .blog-card h3 { transition: color 0.2s; }
+  .blog-card:hover h3 { color: #D4AF37 !important; }
+
+  @media (max-width: 768px) {
+    #featured-card { grid-template-columns: 1fr !important; }
+    #blog-grid { grid-template-columns: 1fr !important; }
+  }
+  @media (min-width: 769px) and (max-width: 1100px) {
+    #blog-grid { grid-template-columns: repeat(2,1fr) !important; }
+  }
+</style>

@@ -1,0 +1,249 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import { getProduct, getProducts } from '../../lib/strapi.js';
+
+import Layout from '../../layouts/Layout.astro';
+import { getProduct, getProducts } from '../../lib/strapi.js';
+
+const { slug } = Astro.params;
+
+const productData = await getProduct(slug);
+const product = productData?.data?.[0];
+
+if (!product) {
+  return Astro.redirect('/productos');
+}
+
+const { nombre, precio, descripcion, imagen, categoria, seo } = product.attributes;
+
+const allProductsData = await getProducts();
+const allProducts = allProductsData?.data || [];
+
+// Related products: same category, exclude current
+const related = allProducts
+  .filter(p =>
+    p.attributes.categoria?.data?.id === categoria?.data?.id &&
+    p.attributes.slug !== slug
+  )
+  .slice(0, 4);
+
+const STRAPI_URL = 'https://kravex-project.onrender.com';
+
+const imgUrl = imagen?.data?.attributes?.url;
+const imgMedium = imagen?.data?.attributes?.formats?.medium?.url || imgUrl;
+const imgLarge = imagen?.data?.attributes?.formats?.large?.url || imgUrl;
+
+const catNombre = categoria?.data?.attributes?.nombre || 'Premium';
+const catSlug = categoria?.data?.attributes?.slug || '';
+
+// Get description text
+function getDescText(desc) {
+  if (!desc || !Array.isArray(desc)) return '';
+  return desc.map(b => b.children?.map(c => c.text).join('') || '').join('\n\n');
+}
+const descText = getDescText(descripcion);
+
+const metaTitle = seo?.meta_title || `${nombre} | KRAVEX`;
+const metaDesc = seo?.meta_description || descText.slice(0, 160);
+
+const productJSON = JSON.stringify({
+  id: product.id,
+  nombre,
+  precio,
+  img: imgMedium ? `${STRAPI_URL}${imgMedium}` : '',
+});
+---
+
+<Layout title={metaTitle} description={metaDesc}>
+
+  <!-- BREADCRUMB -->
+  <div style="padding:80px 32px 0;max-width:1280px;margin:0 auto;">
+    <nav style="margin-bottom:32px;">
+      <a href="/" style="color:#444;font-size:11px;letter-spacing:0.1em;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#444'">INICIO</a>
+      <span style="color:#333;margin:0 8px;font-size:11px;">›</span>
+      <a href="/productos" style="color:#444;font-size:11px;letter-spacing:0.1em;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#444'">COLECCIÓN</a>
+      <span style="color:#333;margin:0 8px;font-size:11px;">›</span>
+      <a href={`/productos?categoria=${catSlug}`} style="color:#444;font-size:11px;letter-spacing:0.1em;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#444'">{catNombre.toUpperCase()}</a>
+      <span style="color:#333;margin:0 8px;font-size:11px;">›</span>
+      <span style="color:#fff;font-size:11px;letter-spacing:0.1em;">{nombre.toUpperCase()}</span>
+    </nav>
+  </div>
+
+  <!-- PRODUCT DETAIL -->
+  <section style="max-width:1280px;margin:0 auto;padding:0 32px 96px;">
+    <div id="product-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;">
+
+      <!-- IMAGE -->
+      <div>
+        <div style="aspect-ratio:3/4;background:#1A1A1A;overflow:hidden;position:relative;">
+          {imgLarge
+            ? <img
+                id="main-img"
+                src={`${STRAPI_URL}${imgLarge}`}
+                alt={nombre}
+                style="width:100%;height:100%;object-fit:cover;transition:transform 0.6s ease;"
+                onmouseover="this.style.transform='scale(1.04)'"
+                onmouseout="this.style.transform='scale(1)'"
+              />
+            : <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#222;font-size:60px;">★</div>
+          }
+          <!-- Category badge -->
+          <div style="position:absolute;top:20px;left:20px;background:rgba(10,10,10,0.8);border:1px solid rgba(212,175,55,0.3);padding:6px 14px;">
+            <span style="color:#D4AF37;font-size:9px;font-weight:700;letter-spacing:0.3em;">{catNombre.toUpperCase()}</span>
+          </div>
+        </div>
+
+        <!-- Thumbnail row (shows same image for now, ready for multiple images) -->
+        <div style="display:flex;gap:12px;margin-top:16px;">
+          {imgMedium &&
+            <div style="width:80px;height:80px;background:#1A1A1A;overflow:hidden;border:1px solid #D4AF37;cursor:pointer;">
+              <img src={`${STRAPI_URL}${imgMedium}`} alt={nombre} style="width:100%;height:100%;object-fit:cover;" />
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- INFO -->
+      <div style="position:sticky;top:96px;">
+        <p style="color:#D4AF37;font-size:10px;font-weight:700;letter-spacing:0.4em;margin-bottom:16px;">{catNombre.toUpperCase()}</p>
+        
+        <h1 style="color:#fff;font-size:clamp(24px,3vw,38px);font-weight:700;letter-spacing:-0.02em;line-height:1.1;margin-bottom:16px;">{nombre}</h1>
+
+        <div style="display:flex;align-items:baseline;gap:16px;margin-bottom:32px;">
+          <span style="color:#D4AF37;font-size:36px;font-weight:700;">€{precio}</span>
+          <span style="color:#555;font-size:13px;">IVA incluido</span>
+        </div>
+
+        <!-- Description -->
+        <div style="border-top:1px solid #1a1a1a;padding-top:24px;margin-bottom:32px;">
+          {descText.split('\n\n').map(para => (
+            <p style="color:#888;font-size:14px;line-height:1.85;margin-bottom:12px;">{para}</p>
+          ))}
+        </div>
+
+        <!-- Add to cart -->
+        <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:32px;">
+          <button
+            id="add-to-cart-btn"
+            style="background:#D4AF37;color:#000;border:none;padding:18px 32px;font-size:11px;font-weight:800;letter-spacing:0.3em;cursor:pointer;font-family:inherit;transition:background 0.2s;width:100%;"
+            onmouseover="this.style.background='#B8941F'"
+            onmouseout="if(!this.dataset.added) this.style.background='#D4AF37'"
+          >
+            AGREGAR AL CARRITO
+          </button>
+          <a href="/productos" style="border:1px solid #222;color:#555;padding:18px 32px;font-size:11px;font-weight:700;letter-spacing:0.2em;text-align:center;text-decoration:none;transition:all 0.2s;display:block;"
+            onmouseover="this.style.borderColor='#333';this.style.color='#888'"
+            onmouseout="this.style.borderColor='#222';this.style.color='#555'"
+          >
+            SEGUIR COMPRANDO
+          </a>
+        </div>
+
+        <!-- Details -->
+        <div style="border-top:1px solid #1a1a1a;padding-top:24px;">
+          <details style="margin-bottom:12px;">
+            <summary style="color:#888;font-size:11px;font-weight:700;letter-spacing:0.2em;cursor:pointer;padding:12px 0;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+              DETALLES DEL PRODUCTO
+              <span style="color:#D4AF37;">+</span>
+            </summary>
+            <div style="padding:16px 0;color:#555;font-size:13px;line-height:1.8;">
+              <p>• Categoría: {catNombre}</p>
+              <p>• Calidad premium garantizada</p>
+              <p>• Envío en 2-5 días hábiles</p>
+            </div>
+          </details>
+          <details style="margin-bottom:12px;">
+            <summary style="color:#888;font-size:11px;font-weight:700;letter-spacing:0.2em;cursor:pointer;padding:12px 0;list-style:none;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #1a1a1a;">
+              ENVÍO Y DEVOLUCIONES
+              <span style="color:#D4AF37;">+</span>
+            </summary>
+            <div style="padding:16px 0;color:#555;font-size:13px;line-height:1.8;">
+              <p>• Envío gratuito en pedidos +€150</p>
+              <p>• Devoluciones en 30 días</p>
+              <p>• Entrega express disponible</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED PRODUCTS -->
+  {related.length > 0 &&
+    <section style="background:#111;border-top:1px solid rgba(212,175,55,0.07);padding:80px 32px;">
+      <div style="max-width:1280px;margin:0 auto;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:40px;">
+          <div>
+            <p style="color:#D4AF37;font-size:10px;font-weight:700;letter-spacing:0.4em;margin-bottom:8px;">TAMBIÉN TE PUEDE GUSTAR</p>
+            <h2 style="color:#fff;font-size:clamp(22px,3vw,32px);font-weight:700;letter-spacing:-0.02em;">Productos Relacionados</h2>
+          </div>
+          <a href={`/productos?categoria=${catSlug}`} style="color:#444;font-size:13px;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#444'">
+            Ver todos →
+          </a>
+        </div>
+
+        <div id="related-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;">
+          {related.map(p => {
+            const { nombre: rNombre, precio: rPrecio, slug: rSlug, imagen: rImg } = p.attributes;
+            const rImgUrl = rImg?.data?.attributes?.formats?.medium?.url || rImg?.data?.attributes?.url;
+            return (
+              <a href={`/productos/${rSlug}`} style="text-decoration:none;" class="related-card">
+                <div style="aspect-ratio:3/4;background:#1A1A1A;overflow:hidden;margin-bottom:14px;position:relative;">
+                  {rImgUrl
+                    ? <img src={`${STRAPI_URL}${rImgUrl}`} alt={rNombre} loading="lazy" class="related-img" style="width:100%;height:100%;object-fit:cover;transition:transform 0.6s;" />
+                    : <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#222;font-size:32px;">★</div>
+                  }
+                  <div class="related-overlay" style="position:absolute;inset:0;background:rgba(0,0,0,0.4);opacity:0;transition:opacity 0.3s;display:flex;align-items:center;justify-content:center;">
+                    <span style="color:#D4AF37;font-size:10px;font-weight:700;letter-spacing:0.3em;border:1px solid #D4AF37;padding:8px 16px;">VER</span>
+                  </div>
+                </div>
+                <h3 style="color:#fff;font-size:13px;font-weight:600;margin-bottom:4px;">{rNombre}</h3>
+                <span style="color:#D4AF37;font-size:13px;font-weight:700;">€{rPrecio}</span>
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  }
+
+</Layout>
+
+<style>
+  .related-card:hover .related-img { transform: scale(1.06) !important; }
+  .related-card:hover .related-overlay { opacity: 1 !important; }
+
+  details summary::-webkit-details-marker { display: none; }
+
+  @media (max-width: 768px) {
+    #product-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+    #related-grid { grid-template-columns: repeat(2,1fr) !important; }
+  }
+
+  @media (max-width: 480px) {
+    #related-grid { grid-template-columns: repeat(2,1fr) !important; gap: 16px !important; }
+  }
+</style>
+
+<script define:vars={{ productJSON }}>
+  const product = JSON.parse(productJSON);
+
+  const btn = document.getElementById('add-to-cart-btn');
+
+  btn.addEventListener('click', function() {
+    if (typeof window.addToCart === 'function') {
+      window.addToCart(product.id, product.nombre, product.precio, product.img);
+    }
+    // Visual feedback
+    this.dataset.added = 'true';
+    this.textContent = '✓ AÑADIDO AL CARRITO';
+    this.style.background = '#10B981';
+    setTimeout(() => {
+      this.textContent = 'AGREGAR AL CARRITO';
+      this.style.background = '#D4AF37';
+      delete this.dataset.added;
+    }, 2000);
+  });
+</script>
