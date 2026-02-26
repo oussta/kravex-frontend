@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://kravex-frontend.vercel.app/sitemap-index.xml
+
+# Disallow admin and API routes
+Disallow: /admin
+Disallow: /api/
