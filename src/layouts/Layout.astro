@@ -45,7 +45,7 @@ const { title, description } = Astro.props;
             <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
           </svg>
         </button>
-        <a href="/contacto" style="border:1px solid rgba(212,175,55,0.4);color:#D4AF37;padding:8px 16px;font-size:10px;font-weight:800;letter-spacing:0.2em;text-decoration:none;transition:all 0.2s;" onmouseover="this.style.background='#D4AF37';this.style.color='#000'" onmouseout="this.style.background='transparent';this.style.color='#D4AF37'" class="cuenta-btn">CUENTA</a>
+        <a href="/contacto" class="cuenta-btn" style="border:1px solid rgba(212,175,55,0.4);color:#D4AF37;padding:8px 16px;font-size:10px;font-weight:800;letter-spacing:0.2em;text-decoration:none;transition:all 0.2s;" onmouseover="this.style.background='#D4AF37';this.style.color='#000'" onmouseout="this.style.background='transparent';this.style.color='#D4AF37'">CUENTA</a>
         <button id="cart-toggle" style="background:none;border:none;color:#888;cursor:pointer;padding:4px;transition:color 0.2s;position:relative;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#888'">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
@@ -64,24 +64,42 @@ const { title, description } = Astro.props;
     </div>
   </div>
 
-  <!-- CART OVERLAY -->
+  <!-- OVERLAY -->
   <div id="cart-overlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;opacity:0;pointer-events:none;transition:opacity 0.3s;"></div>
 
-  <!-- CART SIDEBAR -->
-  <div id="cart-sidebar" style="position:fixed;top:0;right:-420px;width:420px;height:100%;height:100dvh;background:#1A1A1A;z-index:201;transition:right 0.3s ease;display:flex;flex-direction:column;border-left:1px solid rgba(212,175,55,0.1);overflow:hidden;">
+  <!-- DESKTOP SIDEBAR -->
+  <div id="cart-sidebar" style="position:fixed;top:0;right:-440px;width:420px;height:100%;background:#1A1A1A;z-index:201;transition:right 0.35s ease;display:flex;flex-direction:column;border-left:1px solid rgba(212,175,55,0.1);">
     <div style="padding:20px 24px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
       <h3 style="font-size:12px;font-weight:800;letter-spacing:0.3em;color:#fff;margin:0;">TU CARRITO</h3>
       <button id="cart-close" style="background:none;border:none;color:#666;cursor:pointer;font-size:20px;padding:4px;line-height:1;">✕</button>
     </div>
-    <div id="cart-items" style="flex:1;overflow-y:auto;padding:24px;-webkit-overflow-scrolling:touch;"></div>
+    <div id="cart-items" style="flex:1;overflow-y:auto;padding:24px;"></div>
     <div id="cart-footer" style="display:none;padding:20px 24px;border-top:1px solid rgba(255,255,255,0.05);flex-shrink:0;">
-      <div style="display:flex;justify-content:space-between;margin-bottom:16px;font-size:13px;font-weight:700;letter-spacing:0.1em;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:16px;font-size:13px;font-weight:700;">
         <span style="color:#fff;">TOTAL</span>
         <span id="cart-total" style="color:#D4AF37;">€0</span>
       </div>
-      <button style="width:100%;background:#D4AF37;color:#000;border:none;padding:16px;font-size:11px;font-weight:800;letter-spacing:0.3em;cursor:pointer;font-family:inherit;transition:background 0.2s;" onmouseover="this.style.background='#B8941F'" onmouseout="this.style.background='#D4AF37'">
-        FINALIZAR COMPRA
-      </button>
+      <button style="width:100%;background:#D4AF37;color:#000;border:none;padding:16px;font-size:11px;font-weight:800;letter-spacing:0.3em;cursor:pointer;font-family:inherit;">FINALIZAR COMPRA</button>
+    </div>
+  </div>
+
+  <!-- MOBILE BOTTOM SHEET -->
+  <div id="cart-mobile" style="position:fixed;bottom:-100%;left:0;right:0;background:#1A1A1A;z-index:201;transition:bottom 0.35s ease;border-radius:20px 20px 0 0;border-top:1px solid rgba(212,175,55,0.2);max-height:85vh;display:flex;flex-direction:column;">
+    <!-- Drag handle -->
+    <div style="padding:12px;display:flex;justify-content:center;flex-shrink:0;">
+      <div style="width:40px;height:4px;background:#333;border-radius:2px;"></div>
+    </div>
+    <div style="padding:0 20px 12px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+      <h3 style="font-size:12px;font-weight:800;letter-spacing:0.3em;color:#fff;margin:0;">TU CARRITO</h3>
+      <button id="cart-close-mobile" style="background:none;border:none;color:#666;cursor:pointer;font-size:20px;padding:4px;line-height:1;">✕</button>
+    </div>
+    <div id="cart-items-mobile" style="flex:1;overflow-y:auto;padding:16px 20px;-webkit-overflow-scrolling:touch;"></div>
+    <div id="cart-footer-mobile" style="display:none;padding:16px 20px 32px;border-top:1px solid rgba(255,255,255,0.05);flex-shrink:0;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:14px;font-size:13px;font-weight:700;">
+        <span style="color:#fff;">TOTAL</span>
+        <span id="cart-total-mobile" style="color:#D4AF37;">€0</span>
+      </div>
+      <button style="width:100%;background:#D4AF37;color:#000;border:none;padding:16px;font-size:11px;font-weight:800;letter-spacing:0.3em;cursor:pointer;font-family:inherit;border-radius:4px;">FINALIZAR COMPRA</button>
     </div>
   </div>
 
@@ -102,42 +120,38 @@ const { title, description } = Astro.props;
           {texto_footer || 'Estableciendo el estándar global para el lujo moderno y la moda editorial. Establecido 2024.'}
         </p>
         <div style="display:flex;gap:16px;">
-          <a href="#" style="color:#444;font-size:11px;font-weight:700;letter-spacing:0.1em;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#444'">IG</a>
-          <a href="#" style="color:#444;font-size:11px;font-weight:700;letter-spacing:0.1em;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#444'">TW</a>
-          <a href="#" style="color:#444;font-size:11px;font-weight:700;letter-spacing:0.1em;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#444'">FB</a>
+          <a href="#" style="color:#444;font-size:11px;font-weight:700;letter-spacing:0.1em;text-decoration:none;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#444'">IG</a>
+          <a href="#" style="color:#444;font-size:11px;font-weight:700;letter-spacing:0.1em;text-decoration:none;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#444'">TW</a>
+          <a href="#" style="color:#444;font-size:11px;font-weight:700;letter-spacing:0.1em;text-decoration:none;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#444'">FB</a>
         </div>
       </div>
-
       <div>
         <h4 style="color:#D4AF37;font-size:10px;font-weight:800;letter-spacing:0.3em;margin-bottom:20px;">TIENDA</h4>
         {categorias.map((cat) => (
-          <a href={`/productos?categoria=${cat.attributes.slug}`} style="display:block;color:#555;font-size:13px;text-decoration:none;margin-bottom:10px;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#555'">
+          <a href={`/productos?categoria=${cat.attributes.slug}`} style="display:block;color:#555;font-size:13px;text-decoration:none;margin-bottom:10px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#555'">
             {cat.attributes.nombre}
           </a>
         ))}
-        <a href="/productos" style="display:block;color:#555;font-size:13px;text-decoration:none;margin-bottom:10px;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#555'">Todos los productos</a>
+        <a href="/productos" style="display:block;color:#555;font-size:13px;text-decoration:none;margin-bottom:10px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#555'">Todos los productos</a>
       </div>
-
       <div>
         <h4 style="color:#D4AF37;font-size:10px;font-weight:800;letter-spacing:0.3em;margin-bottom:20px;">EDITORIAL</h4>
-        <a href="/blog" style="display:block;color:#555;font-size:13px;text-decoration:none;margin-bottom:10px;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#555'">Journal</a>
-        <a href="/blog" style="display:block;color:#555;font-size:13px;text-decoration:none;margin-bottom:10px;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#555'">Últimos artículos</a>
-        <a href="/blog" style="display:block;color:#555;font-size:13px;text-decoration:none;margin-bottom:10px;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#555'">Guías de estilo</a>
+        <a href="/blog" style="display:block;color:#555;font-size:13px;text-decoration:none;margin-bottom:10px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#555'">Journal</a>
+        <a href="/blog" style="display:block;color:#555;font-size:13px;text-decoration:none;margin-bottom:10px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#555'">Últimos artículos</a>
+        <a href="/blog" style="display:block;color:#555;font-size:13px;text-decoration:none;margin-bottom:10px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#555'">Guías de estilo</a>
       </div>
-
       <div>
         <h4 style="color:#D4AF37;font-size:10px;font-weight:800;letter-spacing:0.3em;margin-bottom:20px;">CONTACTO</h4>
-        <a href={`mailto:${email_contacto || 'contacto@kravex.com'}`} style="display:block;color:#555;font-size:13px;text-decoration:none;margin-bottom:10px;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#555'">{email_contacto || 'contacto@kravex.com'}</a>
-        <a href={`tel:${telefono || '+34900000000'}`} style="display:block;color:#555;font-size:13px;text-decoration:none;margin-bottom:10px;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#555'">{telefono || '+34 900 000 000'}</a>
-        <a href="/contacto" style="display:block;color:#555;font-size:13px;text-decoration:none;margin-bottom:10px;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#555'">Formulario de contacto</a>
+        <a href={`mailto:${email_contacto || 'contacto@kravex.com'}`} style="display:block;color:#555;font-size:13px;text-decoration:none;margin-bottom:10px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#555'">{email_contacto || 'contacto@kravex.com'}</a>
+        <a href={`tel:${telefono || '+34900000000'}`} style="display:block;color:#555;font-size:13px;text-decoration:none;margin-bottom:10px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#555'">{telefono || '+34 900 000 000'}</a>
+        <a href="/contacto" style="display:block;color:#555;font-size:13px;text-decoration:none;margin-bottom:10px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#555'">Formulario de contacto</a>
       </div>
     </div>
-
     <div style="max-width:1280px;margin:0 auto;padding-top:32px;border-top:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
-      <span style="color:#333;font-size:11px;letter-spacing:0.05em;">© 2025 {nombre_sitio || 'KRAVEX'}. Todos los derechos reservados.</span>
+      <span style="color:#333;font-size:11px;">© 2025 {nombre_sitio || 'KRAVEX'}. Todos los derechos reservados.</span>
       <div style="display:flex;gap:24px;">
-        <a href="#" style="color:#333;font-size:11px;text-decoration:none;letter-spacing:0.1em;transition:color 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#333'">Privacidad</a>
-        <a href="#" style="color:#333;font-size:11px;text-decoration:none;letter-spacing:0.1em;transition:color 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#333'">Términos</a>
+        <a href="#" style="color:#333;font-size:11px;text-decoration:none;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#333'">Privacidad</a>
+        <a href="#" style="color:#333;font-size:11px;text-decoration:none;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#333'">Términos</a>
       </div>
     </div>
   </footer>
@@ -153,79 +167,80 @@ const { title, description } = Astro.props;
     .main-nav { display: none !important; }
     .cuenta-btn { display: none !important; }
     .footer-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
-    #cart-sidebar {
-      width: 100% !important;
-      right: -100vw !important;
-    }
+    /* Hide desktop sidebar on mobile */
+    #cart-sidebar { display: none !important; }
+  }
+  @media (min-width: 769px) {
+    /* Hide mobile bottom sheet on desktop */
+    #cart-mobile { display: none !important; }
   }
 </style>
 
 <script>
-  // ── CART SYSTEM WITH LOCALSTORAGE ────────────────────────
+  // ── CART SYSTEM ───────────────────────────────────────────
   let cart = [];
-
-  try {
-    cart = JSON.parse(localStorage.getItem('kravex-cart') || '[]');
-  } catch(e) {
-    cart = [];
-  }
+  try { cart = JSON.parse(localStorage.getItem('kravex-cart') || '[]'); } catch(e) { cart = []; }
 
   function saveCart() {
-    try {
-      localStorage.setItem('kravex-cart', JSON.stringify(cart));
-    } catch(e) {}
+    try { localStorage.setItem('kravex-cart', JSON.stringify(cart)); } catch(e) {}
+  }
+
+  function cartItemHTML(item) {
+    return `
+      <div style="display:flex;gap:12px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.05);align-items:flex-start;">
+        <div style="width:64px;height:64px;flex-shrink:0;background:#252525;overflow:hidden;">
+          ${item.img
+            ? `<img src="${item.img}" alt="${item.name}" style="width:100%;height:100%;object-fit:cover;" />`
+            : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#333;font-size:18px;">★</div>`
+          }
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="color:#fff;font-size:12px;font-weight:600;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.name}</div>
+          <div style="color:#D4AF37;font-size:13px;font-weight:700;margin-bottom:8px;">€${item.price}</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <button onclick="changeQty(${item.id},-1)" style="background:#252525;border:none;color:#888;width:26px;height:26px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;">−</button>
+            <span style="color:#fff;font-size:13px;min-width:20px;text-align:center;">${item.qty}</span>
+            <button onclick="changeQty(${item.id},1)" style="background:#252525;border:none;color:#888;width:26px;height:26px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;">+</button>
+          </div>
+        </div>
+        <button onclick="removeFromCart(${item.id})" style="background:none;border:none;color:#444;cursor:pointer;font-size:18px;padding:0;line-height:1;">✕</button>
+      </div>`;
+  }
+
+  function emptyCartHTML(isMobile) {
+    return `<div style="text-align:center;padding:${isMobile ? '40px' : '60px'} 0;">
+      <p style="color:#555;margin-bottom:16px;font-size:14px;">Tu carrito está vacío</p>
+      <a href="/productos" style="color:#D4AF37;font-size:12px;letter-spacing:0.2em;text-decoration:none;">Ver productos</a>
+    </div>`;
   }
 
   function updateCartUI() {
-    const count = cart.reduce((sum, item) => sum + item.qty, 0);
-    const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    const count = cart.reduce((sum, i) => sum + i.qty, 0);
+    const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
 
     document.getElementById('cart-count').textContent = count;
 
-    const cartItems = document.getElementById('cart-items');
-    const cartFooter = document.getElementById('cart-footer');
-    const cartTotal = document.getElementById('cart-total');
+    // Desktop
+    const di = document.getElementById('cart-items');
+    const df = document.getElementById('cart-footer');
+    const dt = document.getElementById('cart-total');
+    if (di) di.innerHTML = cart.length ? cart.map(cartItemHTML).join('') : emptyCartHTML(false);
+    if (df) df.style.display = cart.length ? 'block' : 'none';
+    if (dt) dt.textContent = `€${total}`;
 
-    if (cart.length === 0) {
-      cartItems.innerHTML = `
-        <div style="text-align:center;padding:60px 0;">
-          <p style="color:#555;margin-bottom:16px;font-size:14px;">Tu carrito está vacío</p>
-          <a href="/productos" style="color:#D4AF37;font-size:12px;letter-spacing:0.2em;text-decoration:none;">Ver productos</a>
-        </div>`;
-      cartFooter.style.display = 'none';
-    } else {
-      cartItems.innerHTML = cart.map(item => `
-        <div style="display:flex;gap:12px;padding:16px 0;border-bottom:1px solid rgba(255,255,255,0.05);align-items:flex-start;">
-          <div style="width:68px;height:68px;flex-shrink:0;background:#252525;overflow:hidden;">
-            ${item.img
-              ? `<img src="${item.img}" alt="${item.name}" style="width:100%;height:100%;object-fit:cover;" />`
-              : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#333;font-size:20px;">★</div>`
-            }
-          </div>
-          <div style="flex:1;min-width:0;">
-            <div style="color:#fff;font-size:12px;font-weight:600;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.name}</div>
-            <div style="color:#D4AF37;font-size:13px;font-weight:700;margin-bottom:8px;">€${item.price}</div>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <button onclick="changeQty(${item.id}, -1)" style="background:#252525;border:none;color:#888;width:26px;height:26px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;line-height:1;flex-shrink:0;">−</button>
-              <span style="color:#fff;font-size:13px;min-width:20px;text-align:center;">${item.qty}</span>
-              <button onclick="changeQty(${item.id}, 1)" style="background:#252525;border:none;color:#888;width:26px;height:26px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;line-height:1;flex-shrink:0;">+</button>
-            </div>
-          </div>
-          <button onclick="removeFromCart(${item.id})" style="background:none;border:none;color:#444;cursor:pointer;font-size:18px;padding:0;flex-shrink:0;line-height:1;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#444'">✕</button>
-        </div>
-      `).join('');
-      cartFooter.style.display = 'block';
-      cartTotal.textContent = `€${total}`;
-    }
+    // Mobile
+    const mi = document.getElementById('cart-items-mobile');
+    const mf = document.getElementById('cart-footer-mobile');
+    const mt = document.getElementById('cart-total-mobile');
+    if (mi) mi.innerHTML = cart.length ? cart.map(cartItemHTML).join('') : emptyCartHTML(true);
+    if (mf) mf.style.display = cart.length ? 'block' : 'none';
+    if (mt) mt.textContent = `€${total}`;
   }
 
   window.addToCart = function(id, name, price, img) {
     const existing = cart.find(i => i.id === id);
-    if (existing) {
-      existing.qty++;
-    } else {
-      cart.push({ id, name, price: Number(price), img: img || '', qty: 1 });
-    }
+    if (existing) { existing.qty++; }
+    else { cart.push({ id, name, price: Number(price), img: img || '', qty: 1 }); }
     saveCart();
     updateCartUI();
     openCart();
@@ -246,55 +261,44 @@ const { title, description } = Astro.props;
     updateCartUI();
   };
 
-  // ── CART OPEN / CLOSE ─────────────────────────────────────
- function openCart() {
-  const sidebar = document.getElementById('cart-sidebar');
-  const overlay = document.getElementById('cart-overlay');
-  const isMobile = window.innerWidth <= 768;
-  
-  // Force correct width on mobile
-  if (isMobile) {
-    sidebar.style.width = '100vw';
-    sidebar.style.maxWidth = '100vw';
-  } else {
-    sidebar.style.width = '420px';
-  }
-  
-  sidebar.style.right = '0';
-  sidebar.style.left = 'auto';
-  overlay.style.opacity = '1';
-  overlay.style.pointerEvents = 'all';
-  document.body.style.overflow = 'hidden';
-  document.documentElement.style.overflow = 'hidden';
-}
+  // ── OPEN / CLOSE ──────────────────────────────────────────
+  function isMobile() { return window.innerWidth <= 768; }
 
-function closeCart() {
-  const sidebar = document.getElementById('cart-sidebar');
-  const overlay = document.getElementById('cart-overlay');
-  const isMobile = window.innerWidth <= 768;
-  
-  sidebar.style.right = isMobile ? `-${window.innerWidth}px` : '-420px';
-  overlay.style.opacity = '0';
-  overlay.style.pointerEvents = 'none';
-  document.body.style.overflow = '';
-  document.documentElement.style.overflow = '';
-}
+  function openCart() {
+    document.getElementById('cart-overlay').style.opacity = '1';
+    document.getElementById('cart-overlay').style.pointerEvents = 'all';
+    document.body.style.overflow = 'hidden';
+
+    if (isMobile()) {
+      document.getElementById('cart-mobile').style.bottom = '0';
+    } else {
+      document.getElementById('cart-sidebar').style.right = '0';
+    }
+  }
+
+  function closeCart() {
+    document.getElementById('cart-overlay').style.opacity = '0';
+    document.getElementById('cart-overlay').style.pointerEvents = 'none';
+    document.body.style.overflow = '';
+
+    document.getElementById('cart-mobile').style.bottom = '-100%';
+    document.getElementById('cart-sidebar').style.right = '-440px';
+  }
 
   document.getElementById('cart-toggle').addEventListener('click', openCart);
   document.getElementById('cart-close').addEventListener('click', closeCart);
+  document.getElementById('cart-close-mobile').addEventListener('click', closeCart);
   document.getElementById('cart-overlay').addEventListener('click', closeCart);
 
-  // Close on swipe right (mobile)
-  let touchStartX = 0;
-  document.getElementById('cart-sidebar').addEventListener('touchstart', (e) => {
-    touchStartX = e.touches[0].clientX;
-  }, { passive: true });
-  document.getElementById('cart-sidebar').addEventListener('touchend', (e) => {
-    const diff = e.changedTouches[0].clientX - touchStartX;
-    if (diff > 80) closeCart(); // swipe right to close
+  // Swipe down to close mobile sheet
+  let startY = 0;
+  const mobileCart = document.getElementById('cart-mobile');
+  mobileCart.addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, { passive: true });
+  mobileCart.addEventListener('touchend', e => {
+    if (e.changedTouches[0].clientY - startY > 80) closeCart();
   }, { passive: true });
 
-  // ── SEARCH ───────────────────────────────────────────────
+  // ── SEARCH ────────────────────────────────────────────────
   document.getElementById('search-toggle').addEventListener('click', () => {
     const bar = document.getElementById('search-bar');
     bar.style.transform = 'translateY(0)';
@@ -302,7 +306,6 @@ function closeCart() {
     bar.style.pointerEvents = 'all';
     document.getElementById('search-bar-input').focus();
   });
-
   document.getElementById('search-close').addEventListener('click', () => {
     const bar = document.getElementById('search-bar');
     bar.style.transform = 'translateY(-100%)';
@@ -312,12 +315,10 @@ function closeCart() {
 
   // ── HEADER SCROLL ─────────────────────────────────────────
   window.addEventListener('scroll', () => {
-    const header = document.getElementById('header');
-    header.style.background = window.scrollY > 50
-      ? 'rgba(10,10,10,0.98)'
-      : 'rgba(10,10,10,0.85)';
+    document.getElementById('header').style.background = window.scrollY > 50
+      ? 'rgba(10,10,10,0.98)' : 'rgba(10,10,10,0.85)';
   });
 
-  // ── INIT ─────────────────────────────────────────────────
+  // ── INIT ──────────────────────────────────────────────────
   updateCartUI();
 </script>
