@@ -247,26 +247,38 @@ const { title, description } = Astro.props;
   };
 
   // ── CART OPEN / CLOSE ─────────────────────────────────────
-  function openCart() {
-    const sidebar = document.getElementById('cart-sidebar');
-    const overlay = document.getElementById('cart-overlay');
-    sidebar.style.right = '0';
-    overlay.style.opacity = '1';
-    overlay.style.pointerEvents = 'all';
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
+ function openCart() {
+  const sidebar = document.getElementById('cart-sidebar');
+  const overlay = document.getElementById('cart-overlay');
+  const isMobile = window.innerWidth <= 768;
+  
+  // Force correct width on mobile
+  if (isMobile) {
+    sidebar.style.width = '100vw';
+    sidebar.style.maxWidth = '100vw';
+  } else {
+    sidebar.style.width = '420px';
   }
+  
+  sidebar.style.right = '0';
+  sidebar.style.left = 'auto';
+  overlay.style.opacity = '1';
+  overlay.style.pointerEvents = 'all';
+  document.body.style.overflow = 'hidden';
+  document.documentElement.style.overflow = 'hidden';
+}
 
-  function closeCart() {
-    const sidebar = document.getElementById('cart-sidebar');
-    const overlay = document.getElementById('cart-overlay');
-    const isMobile = window.innerWidth <= 768;
-    sidebar.style.right = isMobile ? '-100vw' : '-420px';
-    overlay.style.opacity = '0';
-    overlay.style.pointerEvents = 'none';
-    document.body.style.overflow = '';
-    document.documentElement.style.overflow = '';
-  }
+function closeCart() {
+  const sidebar = document.getElementById('cart-sidebar');
+  const overlay = document.getElementById('cart-overlay');
+  const isMobile = window.innerWidth <= 768;
+  
+  sidebar.style.right = isMobile ? `-${window.innerWidth}px` : '-420px';
+  overlay.style.opacity = '0';
+  overlay.style.pointerEvents = 'none';
+  document.body.style.overflow = '';
+  document.documentElement.style.overflow = '';
+}
 
   document.getElementById('cart-toggle').addEventListener('click', openCart);
   document.getElementById('cart-close').addEventListener('click', closeCart);
