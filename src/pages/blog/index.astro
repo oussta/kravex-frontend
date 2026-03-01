@@ -5,7 +5,7 @@ import { getBlogs } from '../../lib/strapi.js';
 const blogsData = await getBlogs();
 const blogs = blogsData?.data || [];
 
-const STRAPI_URL = 'https://kravex-project.onrender.com';
+const STRAPI_URL = import.meta.env.PUBLIC_STRAPI_URL || 'https://kravex-project.onrender.com';
 
 function getExcerpt(contenido) {
   if (!contenido || !Array.isArray(contenido)) return '';
@@ -17,33 +17,33 @@ function getExcerpt(contenido) {
 <Layout title="Editorial | KRAVEX" description="Artículos sobre moda old school, fragancias de lujo y estilo masculino premium">
 
   <!-- HEADER -->
-  <section style="padding:100px 32px 60px;max-width:1280px;margin:0 auto;text-align:center;">
+  <section aria-label="Cabecera editorial" style="padding:100px 32px 60px; max-width:1280px; margin:0 auto; text-align:center;">
     <p style="color:#D4AF37;font-size:10px;font-weight:700;letter-spacing:0.4em;margin-bottom:16px;">KRAVEX JOURNAL</p>
     <h1 style="color:#fff;font-size:clamp(36px,6vw,72px);font-weight:700;letter-spacing:-0.03em;margin-bottom:16px;">Editorial</h1>
     <p style="color:#555;font-size:15px;max-width:480px;margin:0 auto;">Guías de estilo, análisis de fragancias y reflexiones sobre moda masculina premium.</p>
   </section>
 
-  <!-- FEATURED POST (first blog) -->
+  <!-- FEATURED POST -->
   {blogs[0] && (() => {
     const { titulo, slug, contenido, tiempo_lectura, imagen, categoria } = blogs[0].attributes;
     const imgUrl = imagen?.data?.attributes?.url;
     const excerpt = getExcerpt(contenido);
     const catNombre = categoria?.data?.attributes?.nombre || 'Editorial';
     return (
-      <section style="max-width:1280px;margin:0 auto;padding:0 32px 80px;">
+      <section aria-label="Artículo destacado" style="max-width:1280px; margin:0 auto; padding:0 32px 80px;">
         <a href={`/blog/${slug}`} style="text-decoration:none;display:grid;grid-template-columns:1fr 1fr;gap:0;background:#1A1A1A;border:1px solid rgba(212,175,55,0.08);overflow:hidden;transition:border-color 0.3s;" class="featured-card" id="featured-card">
-          <div style="aspect-ratio:4/3;background:#151515;overflow:hidden;">
+          <figure style="aspect-ratio:4/3;background:#151515;overflow:hidden;margin:0;">
             {imgUrl
-              ? <img src={`${STRAPI_URL}${imgUrl}`} alt={titulo} style="width:100%;height:100%;object-fit:cover;transition:transform 0.6s;" class="featured-img" />
-              : <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a1a,#0a0a0a);">
+              ? <img src={`${STRAPI_URL}${imgUrl}`} alt={`Imagen del artículo: ${titulo}`} style="width:100%;height:100%;object-fit:cover;transition:transform 0.6s;" class="featured-img" />
+              : <div aria-hidden="true" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a1a,#0a0a0a);">
                   <span style="color:#D4AF37;font-size:80px;opacity:0.15;">★</span>
                 </div>
             }
-          </div>
+          </figure>
           <div style="padding:48px;display:flex;flex-direction:column;justify-content:center;">
             <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
               <span style="background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.2);color:#D4AF37;font-size:9px;font-weight:700;letter-spacing:0.3em;padding:4px 12px;">DESTACADO</span>
-              <span style="color:#444;font-size:11px;">{tiempo_lectura || 5} min lectura</span>
+              <span style="color:#444;font-size:11px;"><time>{tiempo_lectura || 5} min lectura</time></span>
             </div>
             <h2 style="color:#fff;font-size:clamp(20px,2.5vw,30px);font-weight:700;letter-spacing:-0.02em;line-height:1.2;margin-bottom:16px;">{titulo}</h2>
             <p style="color:#555;font-size:14px;line-height:1.8;margin-bottom:28px;">{excerpt}</p>
@@ -54,40 +54,44 @@ function getExcerpt(contenido) {
     );
   })()}
 
-  <!-- BLOG GRID (rest of posts) -->
-  <section style="max-width:1280px;margin:0 auto;padding:0 32px 96px;">
-    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:40px;padding-bottom:16px;border-bottom:1px solid #1a1a1a;">
+  <!-- BLOG GRID -->
+  <section aria-label="Todos los artículos" style="max-width:1280px; margin:0 auto; padding:0 32px 96px;">
+    <header style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:40px; padding-bottom:16px; border-bottom:1px solid #1a1a1a;">
       <h2 style="color:#fff;font-size:18px;font-weight:700;letter-spacing:-0.01em;">Todos los Artículos</h2>
-      <span style="color:#444;font-size:12px;">{blogs.length} artículos</span>
-    </div>
+      <span style="color:#444;font-size:12px;" aria-label={`${blogs.length} artículos disponibles`}>{blogs.length} artículos</span>
+    </header>
 
-    <div id="blog-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px;">
+    <ul id="blog-grid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:32px; list-style:none; padding:0; margin:0;">
       {blogs.slice(1).map(blog => {
         const { titulo, slug, contenido, tiempo_lectura, imagen, categoria } = blog.attributes;
         const imgUrl = imagen?.data?.attributes?.formats?.medium?.url || imagen?.data?.attributes?.url;
         const excerpt = getExcerpt(contenido);
         const catNombre = categoria?.data?.attributes?.nombre || 'Editorial';
         return (
-          <a href={`/blog/${slug}`} style="text-decoration:none;" class="blog-card">
-            <div style="aspect-ratio:16/9;background:#1A1A1A;overflow:hidden;margin-bottom:20px;">
-              {imgUrl
-                ? <img src={`${STRAPI_URL}${imgUrl}`} alt={titulo} loading="lazy" class="blog-img" style="width:100%;height:100%;object-fit:cover;transition:transform 0.6s;" />
-                : <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a1a,#0a0a0a);">
-                    <span style="color:#D4AF37;font-size:40px;opacity:0.15;">★</span>
-                  </div>
-              }
-            </div>
-            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-              <span style="color:#D4AF37;font-size:10px;font-weight:700;letter-spacing:0.2em;">{catNombre.toUpperCase()}</span>
-              <span style="color:#333;font-size:11px;">·</span>
-              <span style="color:#444;font-size:11px;">{tiempo_lectura || 5} min</span>
-            </div>
-            <h3 style="color:#fff;font-size:16px;font-weight:700;line-height:1.3;margin-bottom:10px;letter-spacing:-0.01em;">{titulo}</h3>
-            <p style="color:#555;font-size:13px;line-height:1.7;">{excerpt}</p>
-          </a>
+          <li>
+            <article>
+              <a href={`/blog/${slug}`} style="text-decoration:none;display:block;" class="blog-card">
+                <figure style="aspect-ratio:16/9;background:#1A1A1A;overflow:hidden;margin:0 0 20px;">
+                  {imgUrl
+                    ? <img src={`${STRAPI_URL}${imgUrl}`} alt={`Imagen del artículo: ${titulo}`} loading="lazy" class="blog-img" style="width:100%;height:100%;object-fit:cover;transition:transform 0.6s;" />
+                    : <div aria-hidden="true" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a1a,#0a0a0a);">
+                        <span style="color:#D4AF37;font-size:40px;opacity:0.15;">★</span>
+                      </div>
+                  }
+                </figure>
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+                  <span style="color:#D4AF37;font-size:10px;font-weight:700;letter-spacing:0.2em;">{catNombre.toUpperCase()}</span>
+                  <span aria-hidden="true" style="color:#333;font-size:11px;">·</span>
+                  <time style="color:#444;font-size:11px;">{tiempo_lectura || 5} min</time>
+                </div>
+                <h3 style="color:#fff;font-size:16px;font-weight:700;line-height:1.3;margin-bottom:10px;letter-spacing:-0.01em;">{titulo}</h3>
+                <p style="color:#555;font-size:13px;line-height:1.7;">{excerpt}</p>
+              </a>
+            </article>
+          </li>
         );
       })}
-    </div>
+    </ul>
   </section>
 
 </Layout>

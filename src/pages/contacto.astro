@@ -5,80 +5,95 @@ import Layout from '../layouts/Layout.astro';
 <Layout title="Contacto | KRAVEX" description="Contacta con KRAVEX para consultas sobre productos, pedidos o colaboraciones premium">
 
   <!-- HEADER -->
-  <section style="padding:100px 32px 60px;max-width:1280px;margin:0 auto;">
-    <nav style="margin-bottom:32px;">
-      <a href="/" style="color:#444;font-size:11px;text-decoration:none;letter-spacing:0.1em;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#444'">INICIO</a>
-      <span style="color:#333;margin:0 8px;font-size:11px;">›</span>
-      <span style="color:#fff;font-size:11px;letter-spacing:0.1em;">CONTACTO</span>
+  <section aria-label="Cabecera de contacto" style="padding:100px 32px 60px; max-width:1280px; margin:0 auto;">
+    <nav aria-label="Breadcrumb" style="margin-bottom:32px;">
+      <ol style="list-style:none;padding:0;margin:0;display:flex;align-items:center;gap:4px;">
+        <li><a href="/" style="color:#444;font-size:11px;text-decoration:none;letter-spacing:0.1em;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#444'">INICIO</a></li>
+        <li aria-hidden="true"><span style="color:#333;margin:0 4px;font-size:11px;">›</span></li>
+        <li><span aria-current="page" style="color:#fff;font-size:11px;letter-spacing:0.1em;">CONTACTO</span></li>
+      </ol>
     </nav>
     <p style="color:#D4AF37;font-size:10px;font-weight:700;letter-spacing:0.4em;margin-bottom:16px;">KRAVEX</p>
     <h1 style="color:#fff;font-size:clamp(32px,5vw,60px);font-weight:700;letter-spacing:-0.02em;margin-bottom:16px;">Hablemos</h1>
     <p style="color:#555;font-size:15px;max-width:480px;">Estamos aquí para responder tus preguntas sobre productos, pedidos o colaboraciones.</p>
   </section>
 
-  <!-- MAIN -->
+  <!-- MAIN CONTENT -->
   <div style="max-width:1280px;margin:0 auto;padding:0 32px 96px;display:grid;grid-template-columns:1fr 1fr;gap:80px;" id="contact-layout">
 
-    <!-- FORM -->
-    <div>
+    <!-- FORM SECTION -->
+    <section aria-label="Formulario de contacto">
 
-      <!-- THANK YOU STATE (hidden by default) -->
-      <div id="thank-you" style="display:none;text-align:center;padding:80px 40px;border:1px solid rgba(212,175,55,0.15);background:#1A1A1A;">
-        <div style="width:64px;height:64px;border:2px solid #D4AF37;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:28px;color:#D4AF37;">✓</div>
+      <!-- THANK YOU STATE -->
+      <div id="thank-you" role="alert" aria-live="polite" style="display:none;text-align:center;padding:80px 40px;border:1px solid rgba(212,175,55,0.15);background:#1A1A1A;">
+        <div aria-hidden="true" style="width:64px;height:64px;border:2px solid #D4AF37;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:28px;color:#D4AF37;">✓</div>
         <p style="color:#D4AF37;font-size:10px;font-weight:700;letter-spacing:0.4em;margin-bottom:16px;">MENSAJE ENVIADO</p>
         <h2 style="color:#fff;font-size:28px;font-weight:700;margin-bottom:16px;letter-spacing:-0.02em;">¡Gracias por contactarnos!</h2>
         <p style="color:#666;font-size:14px;line-height:1.8;margin-bottom:32px;">Hemos recibido tu mensaje. Nuestro equipo te responderá en un plazo de 24-48 horas.</p>
-        <a href="/" style="display:inline-block;background:#D4AF37;color:#000;padding:16px 40px;font-size:11px;font-weight:800;letter-spacing:0.3em;text-decoration:none;transition:background 0.2s;" onmouseover="this.style.background='#B8941F'" onmouseout="this.style.background='#D4AF37'">
+        <a href="/" style="display:inline-block;background:#D4AF37;color:#000;padding:16px 40px;font-size:11px;font-weight:800;letter-spacing:0.3em;text-decoration:none;" onmouseover="this.style.background='#B8941F'" onmouseout="this.style.background='#D4AF37'">
           VOLVER AL INICIO
         </a>
       </div>
 
-      <!-- FORM -->
-      <form id="contact-form" novalidate>
+      <!-- CONTACT FORM -->
+      <form id="contact-form" novalidate aria-label="Formulario de contacto">
 
         <!-- Nombre -->
-        <div class="field-wrap" style="margin-bottom:24px;">
-          <label style="display:block;color:#D4AF37;font-size:10px;font-weight:700;letter-spacing:0.3em;margin-bottom:10px;">NOMBRE COMPLETO *</label>
+        <div style="margin-bottom:24px;">
+          <label for="field-nombre" style="display:block;color:#D4AF37;font-size:10px;font-weight:700;letter-spacing:0.3em;margin-bottom:10px;">NOMBRE COMPLETO *</label>
           <input
             type="text"
             id="field-nombre"
+            name="nombre"
+            autocomplete="name"
             placeholder="Tu nombre completo"
+            aria-required="true"
+            aria-describedby="error-nombre"
             style="width:100%;background:transparent;border:1px solid #222;color:#fff;padding:14px 16px;font-size:14px;outline:none;font-family:inherit;transition:border-color 0.2s;box-sizing:border-box;"
           />
-          <p class="field-error" id="error-nombre" style="color:#DC2626;font-size:11px;margin-top:6px;display:none;"></p>
+          <p role="alert" id="error-nombre" style="color:#DC2626;font-size:11px;margin-top:6px;display:none;"></p>
         </div>
 
         <!-- Email -->
-        <div class="field-wrap" style="margin-bottom:24px;">
-          <label style="display:block;color:#D4AF37;font-size:10px;font-weight:700;letter-spacing:0.3em;margin-bottom:10px;">EMAIL *</label>
+        <div style="margin-bottom:24px;">
+          <label for="field-email" style="display:block;color:#D4AF37;font-size:10px;font-weight:700;letter-spacing:0.3em;margin-bottom:10px;">EMAIL *</label>
           <input
             type="email"
             id="field-email"
+            name="email"
+            autocomplete="email"
             placeholder="tu@email.com"
+            aria-required="true"
+            aria-describedby="error-email"
             style="width:100%;background:transparent;border:1px solid #222;color:#fff;padding:14px 16px;font-size:14px;outline:none;font-family:inherit;transition:border-color 0.2s;box-sizing:border-box;"
           />
-          <p class="field-error" id="error-email" style="color:#DC2626;font-size:11px;margin-top:6px;display:none;"></p>
+          <p role="alert" id="error-email" style="color:#DC2626;font-size:11px;margin-top:6px;display:none;"></p>
         </div>
 
         <!-- Teléfono -->
-        <div class="field-wrap" style="margin-bottom:24px;">
-          <label style="display:block;color:#D4AF37;font-size:10px;font-weight:700;letter-spacing:0.3em;margin-bottom:10px;">TELÉFONO <span style="color:#444;">(opcional)</span></label>
+        <div style="margin-bottom:24px;">
+          <label for="field-telefono" style="display:block;color:#D4AF37;font-size:10px;font-weight:700;letter-spacing:0.3em;margin-bottom:10px;">TELÉFONO <span style="color:#444;font-weight:400;">(opcional)</span></label>
           <input
             type="tel"
             id="field-telefono"
+            name="telefono"
+            autocomplete="tel"
             placeholder="+34 600 000 000"
+            aria-describedby="error-telefono"
             style="width:100%;background:transparent;border:1px solid #222;color:#fff;padding:14px 16px;font-size:14px;outline:none;font-family:inherit;transition:border-color 0.2s;box-sizing:border-box;"
           />
-          <p class="field-error" id="error-telefono" style="color:#DC2626;font-size:11px;margin-top:6px;display:none;"></p>
+          <p role="alert" id="error-telefono" style="color:#DC2626;font-size:11px;margin-top:6px;display:none;"></p>
         </div>
 
         <!-- Asunto -->
-        <div class="field-wrap" style="margin-bottom:24px;">
-          <label style="display:block;color:#D4AF37;font-size:10px;font-weight:700;letter-spacing:0.3em;margin-bottom:10px;">ASUNTO *</label>
+        <div style="margin-bottom:24px;">
+          <label for="field-asunto" style="display:block;color:#D4AF37;font-size:10px;font-weight:700;letter-spacing:0.3em;margin-bottom:10px;">ASUNTO *</label>
           <select
             id="field-asunto"
-            style="width:100%;background:#0A0A0A;border:1px solid #222;color:#fff;padding:14px 16px;font-size:14px;outline:none;font-family:inherit;cursor:pointer;transition:border-color 0.2s;box-sizing:border-box;"
-          >
+            name="asunto"
+            aria-required="true"
+            aria-describedby="error-asunto"
+            style="width:100%;background:#0A0A0A;border:1px solid #222;color:#fff;padding:14px 16px;font-size:14px;outline:none;font-family:inherit;cursor:pointer;transition:border-color 0.2s;box-sizing:border-box;">
             <option value="">Selecciona un asunto...</option>
             <option value="pedido">Consulta sobre pedido</option>
             <option value="producto">Información de producto</option>
@@ -86,19 +101,21 @@ import Layout from '../layouts/Layout.astro';
             <option value="colaboracion">Colaboración</option>
             <option value="otro">Otro</option>
           </select>
-          <p class="field-error" id="error-asunto" style="color:#DC2626;font-size:11px;margin-top:6px;display:none;"></p>
+          <p role="alert" id="error-asunto" style="color:#DC2626;font-size:11px;margin-top:6px;display:none;"></p>
         </div>
 
         <!-- Mensaje -->
-        <div class="field-wrap" style="margin-bottom:32px;">
-          <label style="display:block;color:#D4AF37;font-size:10px;font-weight:700;letter-spacing:0.3em;margin-bottom:10px;">MENSAJE *</label>
+        <div style="margin-bottom:32px;">
+          <label for="field-mensaje" style="display:block;color:#D4AF37;font-size:10px;font-weight:700;letter-spacing:0.3em;margin-bottom:10px;">MENSAJE *</label>
           <textarea
             id="field-mensaje"
+            name="mensaje"
             placeholder="Escribe tu mensaje aquí..."
             rows="5"
-            style="width:100%;background:transparent;border:1px solid #222;color:#fff;padding:14px 16px;font-size:14px;outline:none;font-family:inherit;resize:vertical;transition:border-color 0.2s;box-sizing:border-box;min-height:140px;"
-          ></textarea>
-          <p class="field-error" id="error-mensaje" style="color:#DC2626;font-size:11px;margin-top:6px;display:none;"></p>
+            aria-required="true"
+            aria-describedby="error-mensaje"
+            style="width:100%;background:transparent;border:1px solid #222;color:#fff;padding:14px 16px;font-size:14px;outline:none;font-family:inherit;resize:vertical;transition:border-color 0.2s;box-sizing:border-box;min-height:140px;"></textarea>
+          <p role="alert" id="error-mensaje" style="color:#DC2626;font-size:11px;margin-top:6px;display:none;"></p>
         </div>
 
         <!-- Submit -->
@@ -107,51 +124,49 @@ import Layout from '../layouts/Layout.astro';
           id="submit-btn"
           style="width:100%;background:#D4AF37;color:#000;border:none;padding:18px;font-size:11px;font-weight:800;letter-spacing:0.3em;cursor:pointer;font-family:inherit;transition:background 0.2s;"
           onmouseover="this.style.background='#B8941F'"
-          onmouseout="this.style.background='#D4AF37'"
-        >
+          onmouseout="this.style.background='#D4AF37'">
           ENVIAR MENSAJE
         </button>
 
         <p style="color:#444;font-size:11px;margin-top:16px;text-align:center;">* Campos obligatorios</p>
       </form>
-    </div>
+    </section>
 
-    <!-- INFO COLUMN -->
-    <div>
+    <!-- INFO SECTION -->
+    <section aria-label="Información de contacto">
       <div style="margin-bottom:48px;">
-        <p style="color:#D4AF37;font-size:10px;font-weight:700;letter-spacing:0.3em;margin-bottom:20px;">INFORMACIÓN DE CONTACTO</p>
-        <div style="display:flex;flex-direction:column;gap:24px;">
+        <h2 style="color:#D4AF37;font-size:10px;font-weight:700;letter-spacing:0.3em;margin-bottom:20px;">INFORMACIÓN DE CONTACTO</h2>
+        <address style="font-style:normal;display:flex;flex-direction:column;gap:24px;">
           <div style="display:flex;gap:16px;align-items:flex-start;">
-            <span style="color:#D4AF37;font-size:18px;flex-shrink:0;">✉</span>
+            <span aria-hidden="true" style="color:#D4AF37;font-size:18px;flex-shrink:0;">✉</span>
             <div>
               <p style="color:#888;font-size:11px;letter-spacing:0.2em;margin-bottom:4px;">EMAIL</p>
-              <a href="mailto:contacto@kravex.com" style="color:#fff;font-size:14px;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#fff'">contacto@kravex.com</a>
+              <a href="mailto:contacto@kravex.com" style="color:#fff;font-size:14px;text-decoration:none;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#fff'">contacto@kravex.com</a>
             </div>
           </div>
           <div style="display:flex;gap:16px;align-items:flex-start;">
-            <span style="color:#D4AF37;font-size:18px;flex-shrink:0;">☎</span>
+            <span aria-hidden="true" style="color:#D4AF37;font-size:18px;flex-shrink:0;">☎</span>
             <div>
               <p style="color:#888;font-size:11px;letter-spacing:0.2em;margin-bottom:4px;">TELÉFONO</p>
-              <a href="tel:+34900000000" style="color:#fff;font-size:14px;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#fff'">+34 900 000 000</a>
+              <a href="tel:+34900000000" style="color:#fff;font-size:14px;text-decoration:none;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#fff'">+34 900 000 000</a>
             </div>
           </div>
           <div style="display:flex;gap:16px;align-items:flex-start;">
-            <span style="color:#D4AF37;font-size:18px;flex-shrink:0;">◷</span>
+            <span aria-hidden="true" style="color:#D4AF37;font-size:18px;flex-shrink:0;">◷</span>
             <div>
               <p style="color:#888;font-size:11px;letter-spacing:0.2em;margin-bottom:4px;">HORARIO</p>
               <p style="color:#fff;font-size:14px;">Lun – Vie: 9:00 – 18:00</p>
             </div>
           </div>
-        </div>
+        </address>
       </div>
 
-      <!-- Divider -->
-      <div style="width:100%;height:1px;background:rgba(212,175,55,0.1);margin-bottom:48px;"></div>
+      <hr style="border:none;border-top:1px solid rgba(212,175,55,0.1);margin-bottom:48px;" />
 
       <!-- FAQ -->
-      <div>
-        <p style="color:#D4AF37;font-size:10px;font-weight:700;letter-spacing:0.3em;margin-bottom:20px;">PREGUNTAS FRECUENTES</p>
-        <div style="display:flex;flex-direction:column;gap:0;">
+      <section aria-label="Preguntas frecuentes">
+        <h2 style="color:#D4AF37;font-size:10px;font-weight:700;letter-spacing:0.3em;margin-bottom:20px;">PREGUNTAS FRECUENTES</h2>
+        <div>
           {[
             ['¿Cuánto tarda el envío?', 'Los pedidos se entregan en 2-5 días hábiles en España peninsular.'],
             ['¿Puedo devolver un producto?', 'Aceptamos devoluciones en 30 días desde la recepción del pedido.'],
@@ -160,14 +175,15 @@ import Layout from '../layouts/Layout.astro';
             <details style="border-bottom:1px solid #1a1a1a;">
               <summary style="color:#fff;font-size:13px;font-weight:600;padding:16px 0;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
                 {q}
-                <span style="color:#D4AF37;font-size:16px;flex-shrink:0;">+</span>
+                <span aria-hidden="true" style="color:#D4AF37;font-size:16px;flex-shrink:0;">+</span>
               </summary>
               <p style="color:#666;font-size:13px;line-height:1.7;padding-bottom:16px;">{a}</p>
             </details>
           ))}
         </div>
-      </div>
-    </div>
+      </section>
+    </section>
+
   </div>
 
 </Layout>
@@ -175,14 +191,12 @@ import Layout from '../layouts/Layout.astro';
 <style>
   details summary::-webkit-details-marker { display: none; }
   details[open] summary span { transform: rotate(45deg); display: inline-block; }
-
   @media (max-width: 768px) {
     #contact-layout { grid-template-columns: 1fr !important; gap: 48px !important; }
   }
 </style>
 
 <script>
-  // ── REGEX PATTERNS (PDF requirement) ─────────────────────
   const patterns = {
     nombre: /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]{2,60}$/,
     email: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
@@ -198,7 +212,6 @@ import Layout from '../layouts/Layout.astro';
     asunto: 'Por favor selecciona un asunto',
   };
 
-  // ── SHOW / HIDE ERROR ─────────────────────────────────────
   function showError(fieldId, message) {
     const input = document.getElementById(`field-${fieldId}`);
     const error = document.getElementById(`error-${fieldId}`);
@@ -220,7 +233,6 @@ import Layout from '../layouts/Layout.astro';
     if (error) error.style.display = 'none';
   }
 
-  // ── VALIDATE SINGLE FIELD ─────────────────────────────────
   function validateField(fieldId) {
     const input = document.getElementById(`field-${fieldId}`);
     if (!input) return true;
@@ -230,84 +242,54 @@ import Layout from '../layouts/Layout.astro';
       if (!value) { showError('asunto', errorMessages.asunto); return false; }
       clearError('asunto'); return true;
     }
-
     if (fieldId === 'telefono') {
-      if (value === '') { clearError('telefono'); return true; } // optional
-      if (!patterns.telefono.test(value.replace(/\s/g, ''))) {
-        showError('telefono', errorMessages.telefono); return false;
-      }
+      if (value === '') { clearError('telefono'); return true; }
+      if (!patterns.telefono.test(value.replace(/\s/g, ''))) { showError('telefono', errorMessages.telefono); return false; }
       clearError('telefono'); return true;
     }
-
     const pattern = patterns[fieldId];
     if (!pattern) return true;
-
-    if (!value) {
-      showError(fieldId, `Este campo es obligatorio`); return false;
-    }
-    if (!pattern.test(value)) {
-      showError(fieldId, errorMessages[fieldId]); return false;
-    }
+    if (!value) { showError(fieldId, 'Este campo es obligatorio'); return false; }
+    if (!pattern.test(value)) { showError(fieldId, errorMessages[fieldId]); return false; }
     clearError(fieldId);
     return true;
   }
 
-  // ── BLUR VALIDATION (PDF requirement) ────────────────────
   ['nombre', 'email', 'telefono', 'mensaje'].forEach(fieldId => {
     const input = document.getElementById(`field-${fieldId}`);
     if (!input) return;
-
-    // On focus: highlight border
     input.addEventListener('focus', () => {
-      if (input.style.borderColor !== '#DC2626') {
-        input.style.borderColor = '#D4AF37';
-      }
+      if (input.style.borderColor !== '#DC2626') input.style.borderColor = '#D4AF37';
     });
-
-    // On blur: validate
     input.addEventListener('blur', () => {
-      if (input.value.trim() === '' && fieldId !== 'telefono') {
-        resetField(fieldId);
-      } else {
-        validateField(fieldId);
-      }
+      if (input.value.trim() === '' && fieldId !== 'telefono') resetField(fieldId);
+      else validateField(fieldId);
     });
-
-    // On input: clear error while typing
     input.addEventListener('input', () => {
-      if (input.style.borderColor === '#DC2626') {
-        validateField(fieldId);
-      }
+      if (input.style.borderColor === '#DC2626') validateField(fieldId);
     });
   });
 
-  // Asunto select blur
   const asuntoSelect = document.getElementById('field-asunto');
   asuntoSelect?.addEventListener('blur', () => validateField('asunto'));
   asuntoSelect?.addEventListener('change', () => validateField('asunto'));
 
-  // ── SUBMIT ────────────────────────────────────────────────
   document.getElementById('contact-form')?.addEventListener('submit', function(e) {
     e.preventDefault();
-
     const fields = ['nombre', 'email', 'telefono', 'asunto', 'mensaje'];
-    const results = fields.map(f => validateField(f));
-    const allValid = results.every(r => r === true);
+    const allValid = fields.map(f => validateField(f)).every(r => r === true);
 
     if (!allValid) {
-      // Scroll to first error
-      const firstError = document.querySelector('.field-error[style*="block"]');
+      const firstError = document.querySelector('[role="alert"]:not([style*="display: none"])');
       firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
-    // Show loading
     const btn = document.getElementById('submit-btn') as HTMLButtonElement;
     btn.textContent = 'ENVIANDO...';
     btn.style.background = '#555';
     btn.disabled = true;
 
-    // Simulate send (replace with real API call if needed)
     setTimeout(() => {
       document.getElementById('contact-form')!.style.display = 'none';
       document.getElementById('thank-you')!.style.display = 'block';

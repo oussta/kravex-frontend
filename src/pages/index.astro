@@ -12,26 +12,25 @@ const { titulo, descripcion, texto_boton } = newsletterData?.data?.attributes ||
 const todosProductos = productsData?.data || [];
 const productos = todosProductos.slice(0, 4);
 
-// Get fragrance image for philosophy section
 const fragancias = todosProductos.filter(p =>
   p.attributes.categoria?.data?.attributes?.slug === 'fragancias'
 );
-const philImage = fragancias.length > 0 
+const philImage = fragancias.length > 0
   ? fragancias[0]?.attributes?.imagen?.data?.attributes?.url
-  : '/uploads/Gemini_Generated_Image_l6pjoel6pjoel6pj_cc8f85b38f.png';
+  : null;
 const STRAPI_URL = import.meta.env.PUBLIC_STRAPI_URL || 'https://kravex-project.onrender.com';
 ---
-console.log('FRAGANCIAS:', fragancias.length, 'PHIL IMAGE:', philImage);
+
 <Layout title="KRAVEX | Ropa Old School & Fragancias Premium" description="Descubre la colección premium de ropa old school y fragancias de lujo KRAVEX">
 
   <!-- HERO -->
-  <section style="position:relative; min-height:100vh; display:flex; align-items:center; justify-content:center; background:#0A0A0A; overflow:hidden;">
-    <div style="position:absolute; inset:0; background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(212,175,55,0.09) 0%, transparent 70%); pointer-events:none;"></div>
+  <section aria-label="Hero principal" style="position:relative; min-height:100vh; display:flex; align-items:center; justify-content:center; background:#0A0A0A; overflow:hidden;">
+    <div style="position:absolute; inset:0; background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(212,175,55,0.09) 0%, transparent 70%); pointer-events:none;" aria-hidden="true"></div>
 
     <div style="position:relative; z-index:10; text-align:center; padding:0 24px; max-width:900px; margin:0 auto;">
-      <div class="inline-block border border-yellow-600/40 text-yellow-500 font-bold px-6 py-2 mb-10" style="font-size:10px; letter-spacing:0.4em;">
+      <p class="inline-block border border-yellow-600/40 text-yellow-500 font-bold px-6 py-2 mb-10" style="font-size:10px; letter-spacing:0.4em;">
         COLECCIÓN 2026
-      </div>
+      </p>
 
       <h1 class="font-black text-white" style="font-size:clamp(60px,12vw,140px); line-height:0.88; letter-spacing:-0.03em; margin-bottom:28px;">
         <span class="block text-white">EL NUEVO</span>
@@ -42,65 +41,69 @@ console.log('FRAGANCIAS:', fragancias.length, 'PHIL IMAGE:', philImage);
         Donde las siluetas de vanguardia se encuentran con el lujo atemporal. Una clase magistral en elegancia discreta.
       </p>
 
-      <div class="flex gap-3 justify-center flex-wrap">
-        <a href="/productos" class="font-black transition-colors" style="background:#D4AF37; color:#000; padding:16px 40px; font-size:11px; letter-spacing:0.25em; text-decoration:none;">
+      <nav aria-label="Acciones hero" class="flex gap-3 justify-center flex-wrap">
+        <a href="/productos" class="font-black" style="background:#D4AF37; color:#000; padding:16px 40px; font-size:11px; letter-spacing:0.25em; text-decoration:none;">
           VER COLECCIÓN
         </a>
-        <a href="/blog" class="font-black transition-colors" style="border:1px solid rgba(255,255,255,0.2); color:#fff; padding:16px 40px; font-size:11px; letter-spacing:0.25em; text-decoration:none;">
+        <a href="/blog" class="font-black" style="border:1px solid rgba(255,255,255,0.2); color:#fff; padding:16px 40px; font-size:11px; letter-spacing:0.25em; text-decoration:none;">
           VER EDITORIAL
         </a>
-      </div>
+      </nav>
     </div>
 
-    <div style="position:absolute; bottom:40px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:10px; color:#333; font-size:9px; letter-spacing:0.4em;">
+    <div aria-hidden="true" style="position:absolute; bottom:40px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:10px; color:#333; font-size:9px; letter-spacing:0.4em;">
       <div style="width:1px; height:40px; background:linear-gradient(to bottom, transparent, #444); animation:scrollpulse 2s ease-in-out infinite;"></div>
       <span>SCROLL</span>
     </div>
   </section>
 
-  <!-- PRODUCTS -->
-  <section style="max-width:1280px; margin:0 auto; padding:96px 32px;">
-    <div class="flex items-end justify-between flex-wrap gap-4" style="margin-bottom:48px;">
+  <!-- PRODUCTOS DESTACADOS -->
+  <section aria-label="Productos destacados" style="max-width:1280px; margin:0 auto; padding:96px 32px;">
+    <header style="display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:16px; margin-bottom:48px;">
       <div>
         <p class="font-bold" style="color:#D4AF37; font-size:10px; letter-spacing:0.4em; margin-bottom:10px;">SELECCIÓN CURADA</p>
         <h2 class="font-bold text-white" style="font-size:clamp(28px,4vw,42px); letter-spacing:-0.02em;">Piezas Esenciales</h2>
       </div>
-      <a href="/productos" class="transition-colors" style="color:#444; font-size:13px; text-decoration:none; white-space:nowrap;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#444'">
+      <a href="/productos" style="color:#444; font-size:13px; text-decoration:none; white-space:nowrap;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#444'">
         Explorar todo →
       </a>
-    </div>
+    </header>
 
-    <div id="prod-grid" class="grid gap-6" style="grid-template-columns: repeat(4,1fr);">
+    <ul id="prod-grid" class="grid gap-6" style="grid-template-columns: repeat(4,1fr); list-style:none; padding:0; margin:0;">
       {productos.map((p) => {
         const { nombre, precio, slug, imagen, categoria } = p.attributes;
         const imgUrl = imagen?.data?.attributes?.formats?.medium?.url || imagen?.data?.attributes?.url;
         const catNombre = categoria?.data?.attributes?.nombre || 'Premium';
         return (
-          <a href={`/productos/${slug}`} class="prod-card block" style="text-decoration:none;">
-            <div class="prod-img-wrap" style="position:relative; aspect-ratio:3/4; background:#1A1A1A; overflow:hidden; margin-bottom:16px;">
-              {imgUrl
-                ? <img src={`${STRAPI_URL}${imgUrl}`} alt={nombre} loading="lazy" class="prod-img" style="width:100%; height:100%; object-fit:cover; transition:transform 0.6s ease; display:block;" />
-                : <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#222; font-size:32px; background:#151515;">★</div>
-              }
-              <div class="prod-overlay" style="position:absolute; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity 0.3s;">
-                <span style="color:#D4AF37; font-size:10px; font-weight:700; letter-spacing:0.3em; border:1px solid #D4AF37; padding:10px 20px;">VER PRODUCTO</span>
-              </div>
-            </div>
-            <div class="flex justify-between items-start gap-2">
-              <div>
-                <p style="color:#555; font-size:10px; letter-spacing:0.2em; margin-bottom:4px;">{catNombre}</p>
-                <h3 class="text-white font-semibold" style="font-size:14px;">{nombre}</h3>
-              </div>
-              <span class="font-bold" style="color:#D4AF37; font-size:14px; white-space:nowrap;">€{precio}</span>
-            </div>
-          </a>
+          <li>
+            <article>
+              <a href={`/productos/${slug}`} class="prod-card block" style="text-decoration:none;">
+                <div class="prod-img-wrap" style="position:relative; aspect-ratio:3/4; background:#1A1A1A; overflow:hidden; margin-bottom:16px;">
+                  {imgUrl
+                    ? <img src={`${STRAPI_URL}${imgUrl}`} alt={`${nombre} - ${catNombre} KRAVEX`} loading="lazy" class="prod-img" style="width:100%; height:100%; object-fit:cover; transition:transform 0.6s ease; display:block;" />
+                    : <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#222; font-size:32px; background:#151515;" aria-hidden="true">★</div>
+                  }
+                  <div class="prod-overlay" aria-hidden="true" style="position:absolute; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity 0.3s;">
+                    <span style="color:#D4AF37; font-size:10px; font-weight:700; letter-spacing:0.3em; border:1px solid #D4AF37; padding:10px 20px;">VER PRODUCTO</span>
+                  </div>
+                </div>
+                <footer style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+                  <div>
+                    <p style="color:#555; font-size:10px; letter-spacing:0.2em; margin-bottom:4px;">{catNombre}</p>
+                    <h3 class="text-white font-semibold" style="font-size:14px;">{nombre}</h3>
+                  </div>
+                  <p class="font-bold" style="color:#D4AF37; font-size:14px; white-space:nowrap;">€{precio}</p>
+                </footer>
+              </a>
+            </article>
+          </li>
         );
       })}
-    </div>
+    </ul>
   </section>
 
-  <!-- PHILOSOPHY -->
-  <section style="background:#111; border-top:1px solid rgba(212,175,55,0.07); border-bottom:1px solid rgba(212,175,55,0.07); padding:96px 32px;">
+  <!-- FILOSOFÍA -->
+  <section aria-label="Nuestra filosofía" style="background:#111; border-top:1px solid rgba(212,175,55,0.07); border-bottom:1px solid rgba(212,175,55,0.07); padding:96px 32px;">
     <div id="phil-grid" class="grid gap-20 items-center" style="max-width:1280px; margin:0 auto; grid-template-columns:1fr 1fr;">
       <div>
         <p class="font-bold" style="color:#D4AF37; font-size:10px; letter-spacing:0.4em; margin-bottom:12px;">NUESTRA FILOSOFÍA</p>
@@ -113,31 +116,31 @@ console.log('FRAGANCIAS:', fragancias.length, 'PHIL IMAGE:', philImage);
         <p class="font-light" style="color:#666; font-size:15px; line-height:1.85; margin-bottom:32px;">
           Cada prenda es una herencia en construcción, creada para quienes encuentran poder en la contención y confianza en la calidad superior.
         </p>
-        <a href="/blog" class="manifesto-link inline-flex items-center font-bold" style="color:#D4AF37; font-size:10px; letter-spacing:0.3em; text-decoration:none; gap:16px; transition:gap 0.3s;">
+        <a href="/blog" class="manifesto-link inline-flex items-center font-bold" style="color:#D4AF37; font-size:10px; letter-spacing:0.3em; text-decoration:none; gap:16px;">
           LEER EL MANIFIESTO
-          <span style="display:inline-block; width:40px; height:1px; background:#D4AF37;"></span>
+          <span aria-hidden="true" style="display:inline-block; width:40px; height:1px; background:#D4AF37;"></span>
         </a>
       </div>
 
-      <div style="overflow:hidden; aspect-ratio:1;">
+      <figure style="overflow:hidden; aspect-ratio:1; margin:0;">
         {philImage
-          ? <img 
-              src={`${STRAPI_URL}${philImage}`} 
-              alt="KRAVEX Filosofía" 
+          ? <img
+              src={`${STRAPI_URL}${philImage}`}
+              alt="Fragancia premium KRAVEX — filosofía de lujo atemporal"
               style="width:100%; height:100%; object-fit:cover; filter:grayscale(100%); transition:filter 0.7s;"
               onmouseover="this.style.filter='grayscale(0%)'"
               onmouseout="this.style.filter='grayscale(100%)'"
             />
-          : <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#151515;">
+          : <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#151515;" aria-hidden="true">
               <span style="color:#D4AF37; font-size:120px; opacity:0.1;">★</span>
             </div>
         }
-      </div>
+      </figure>
     </div>
   </section>
 
   <!-- NEWSLETTER -->
-  <section style="padding:120px 32px; background:#0A0A0A;">
+  <section aria-label="Suscripción newsletter" style="padding:120px 32px; background:#0A0A0A;">
     <div style="max-width:580px; margin:0 auto; text-align:center;">
       <p class="font-bold" style="color:#D4AF37; font-size:10px; letter-spacing:0.4em; margin-bottom:16px;">EL CÍRCULO INTERIOR</p>
       <h2 class="font-bold text-white" style="font-size:clamp(28px,4vw,42px); letter-spacing:-0.02em; margin-bottom:16px;">
@@ -146,10 +149,13 @@ console.log('FRAGANCIAS:', fragancias.length, 'PHIL IMAGE:', philImage);
       <p class="font-light" style="color:#555; font-size:15px; line-height:1.7; margin-bottom:40px;">
         {descripcion || 'Sé el primero en conocer nuevas colecciones, acceso exclusivo y lookbooks de temporada.'}
       </p>
-      <div id="nl-form" class="flex" style="margin-bottom:14px;">
+      <div id="nl-form" class="flex" style="margin-bottom:14px;" role="form" aria-label="Formulario de suscripción">
+        <label for="nl-email" class="sr-only">Tu dirección de email</label>
         <input
           type="email"
           id="nl-email"
+          name="email"
+          autocomplete="email"
           placeholder="TU DIRECCIÓN DE EMAIL"
           style="flex:1; background:transparent; border:1px solid #222; border-right:none; color:#fff; padding:16px 20px; font-size:11px; letter-spacing:0.1em; outline:none; font-family:inherit; min-width:0; transition:border-color 0.2s;"
           onfocus="this.style.borderColor='#D4AF37'"
@@ -157,6 +163,8 @@ console.log('FRAGANCIAS:', fragancias.length, 'PHIL IMAGE:', philImage);
         />
         <button
           id="nl-btn"
+          type="button"
+          aria-label="Suscribirse al newsletter"
           style="background:#D4AF37; color:#000; border:none; padding:16px 28px; font-size:10px; font-weight:800; letter-spacing:0.25em; cursor:pointer; font-family:inherit; white-space:nowrap; transition:background 0.2s;"
           onmouseover="this.style.background='#B8941F'"
           onmouseout="if(!this.dataset.success) this.style.background='#D4AF37'"
@@ -175,22 +183,19 @@ console.log('FRAGANCIAS:', fragancias.length, 'PHIL IMAGE:', philImage);
     0%, 100% { opacity: 0.2; }
     50% { opacity: 1; }
   }
-
+  .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
   .prod-card:hover .prod-img { transform: scale(1.06); }
   .prod-card:hover .prod-overlay { opacity: 1 !important; }
   .manifesto-link:hover { gap: 28px !important; }
 
-  /* RESPONSIVE */
   @media (max-width: 1024px) {
     #prod-grid { grid-template-columns: repeat(2, 1fr) !important; }
   }
-
   @media (max-width: 768px) {
     #phil-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
     #nl-form { flex-direction: column !important; }
     #nl-form input { border-right: 1px solid #222 !important; border-bottom: none !important; }
   }
-
   @media (max-width: 500px) {
     #prod-grid { grid-template-columns: 1fr !important; }
   }

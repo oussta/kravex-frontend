@@ -9,37 +9,31 @@ const { slug } = Astro.params;
 const blogData = await getBlog(slug);
 const blog = blogData?.data?.[0];
 
-if (!blog) {
-  return Astro.redirect('/blog');
-}
+if (!blog) return Astro.redirect('/blog');
 
 const { titulo, contenido, tiempo_lectura, imagen, categoria, seo } = blog.attributes;
 
-const STRAPI_URL = 'https://kravex-project.onrender.com';
+const STRAPI_URL = import.meta.env.PUBLIC_STRAPI_URL || 'https://kravex-project.onrender.com';
 
 const imgUrl = imagen?.data?.attributes?.url;
 const catNombre = categoria?.data?.attributes?.nombre || null;
 const catId = categoria?.data?.id || null;
 
-// Get all products
 const allProductsData = await getProducts();
 const allProducts = allProductsData?.data || [];
 
-// Find best product by keyword matching
 let featuredProduct = null;
 
 if (catId) {
-  const catProducts = allProducts.filter(p =>
-    p.attributes.categoria?.data?.id === catId
-  );
+  const catProducts = allProducts.filter(p => p.attributes.categoria?.data?.id === catId);
   featuredProduct = catProducts.sort((a, b) => b.attributes.precio - a.attributes.precio)[0] || null;
 }
 
 if (!featuredProduct) {
   const tituloLower = titulo.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  const fragranceKeywords = ['perfume', 'fragancia', 'oud', 'aroma', 'noir', 'gold', 'platinum', 'fresh', 'royal', 'olfat'];
-  const ropaKeywords = ['ropa', 'polo', 'camisa', 'chaqueta', 'pantalon', 'sudadera', 'outfit', 'estilo', 'moda', 'guardarropa', 'prendas', 'bomber', 'abrigo'];
-  const accesoriosKeywords = ['accesorio', 'cinturon', 'gorra', 'mochila', 'bolso', 'calcetines'];
+  const fragranceKeywords = ['perfume','fragancia','oud','aroma','noir','gold','platinum','fresh','royal','olfat'];
+  const ropaKeywords = ['ropa','polo','camisa','chaqueta','pantalon','sudadera','outfit','estilo','moda','guardarropa','prendas','bomber','abrigo'];
+  const accesoriosKeywords = ['accesorio','cinturon','gorra','mochila','bolso','calcetines'];
 
   let targetCatSlug = null;
   if (fragranceKeywords.some(k => tituloLower.includes(k))) targetCatSlug = 'fragancias';
@@ -47,9 +41,7 @@ if (!featuredProduct) {
   else if (accesoriosKeywords.some(k => tituloLower.includes(k))) targetCatSlug = 'accesorios';
 
   if (targetCatSlug) {
-    const matched = allProducts.filter(p =>
-      p.attributes.categoria?.data?.attributes?.slug === targetCatSlug
-    );
+    const matched = allProducts.filter(p => p.attributes.categoria?.data?.attributes?.slug === targetCatSlug);
     featuredProduct = matched.sort((a, b) => b.attributes.precio - a.attributes.precio)[0] || null;
   }
 }
@@ -58,7 +50,6 @@ if (!featuredProduct) {
   featuredProduct = [...allProducts].sort((a, b) => b.attributes.precio - a.attributes.precio)[0] || null;
 }
 
-// Render rich text
 function renderContent(contenido) {
   if (!contenido || !Array.isArray(contenido)) return '';
   return contenido.map(block => {
@@ -81,7 +72,6 @@ function renderContent(contenido) {
 
 const articleHTML = renderContent(contenido);
 
-// Reading time
 function calcReadingTime(contenido) {
   if (!contenido) return tiempo_lectura || 5;
   const text = contenido.map(b => b.children?.map(c => c.text).join('') || '').join(' ');
@@ -99,75 +89,76 @@ const fpImgUrl = fp?.imagen?.data?.attributes?.formats?.medium?.url || fp?.image
 
 <Layout title={metaTitle} description={metaDesc}>
 
-  <!-- HEADER -->
-  <section style="max-width:760px;margin:0 auto;padding:100px 32px 48px;">
-    <nav style="margin-bottom:32px;">
-      <a href="/" style="color:#444;font-size:11px;text-decoration:none;letter-spacing:0.1em;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#444'">INICIO</a>
-      <span style="color:#333;margin:0 8px;font-size:11px;">›</span>
-      <a href="/blog" style="color:#444;font-size:11px;text-decoration:none;letter-spacing:0.1em;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#444'">EDITORIAL</a>
-      {catNombre &&
-        <>
-          <span style="color:#333;margin:0 8px;font-size:11px;">›</span>
-          <span style="color:#888;font-size:11px;letter-spacing:0.1em;">{catNombre.toUpperCase()}</span>
-        </>
-      }
+  <!-- ARTICLE HEADER -->
+  <header style="max-width:760px; margin:0 auto; padding:100px 32px 48px;">
+    <nav aria-label="Breadcrumb" style="margin-bottom:32px;">
+      <ol style="list-style:none;padding:0;margin:0;display:flex;align-items:center;flex-wrap:wrap;gap:4px;">
+        <li><a href="/" style="color:#444;font-size:11px;text-decoration:none;letter-spacing:0.1em;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#444'">INICIO</a></li>
+        <li aria-hidden="true"><span style="color:#333;margin:0 4px;font-size:11px;">›</span></li>
+        <li><a href="/blog" style="color:#444;font-size:11px;text-decoration:none;letter-spacing:0.1em;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='#444'">EDITORIAL</a></li>
+        {catNombre &&
+          <>
+            <li aria-hidden="true"><span style="color:#333;margin:0 4px;font-size:11px;">›</span></li>
+            <li><span style="color:#888;font-size:11px;letter-spacing:0.1em;">{catNombre.toUpperCase()}</span></li>
+          </>
+        }
+      </ol>
     </nav>
 
     <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap;">
       {catNombre &&
         <span style="background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.2);color:#D4AF37;font-size:9px;font-weight:700;letter-spacing:0.3em;padding:4px 12px;">{catNombre.toUpperCase()}</span>
       }
-      <span style="color:#444;font-size:12px;">⏱ {readTime} min de lectura</span>
+      <span style="color:#444;font-size:12px;">⏱ <time>{readTime} min de lectura</time></span>
     </div>
 
     <h1 style="color:#fff;font-size:clamp(28px,4vw,46px);font-weight:700;letter-spacing:-0.02em;line-height:1.15;margin-bottom:24px;">{titulo}</h1>
-    <div style="width:48px;height:2px;background:#D4AF37;margin-bottom:40px;"></div>
-  </section>
+    <div aria-hidden="true" style="width:48px;height:2px;background:#D4AF37;margin-bottom:40px;"></div>
+  </header>
 
   <!-- HERO IMAGE -->
   {imgUrl &&
-    <div style="max-width:1000px;margin:0 auto 64px;padding:0 32px;">
+    <figure style="max-width:1000px;margin:0 auto 64px;padding:0 32px;">
       <div style="aspect-ratio:16/7;overflow:hidden;background:#1A1A1A;">
-        <img src={`${STRAPI_URL}${imgUrl}`} alt={titulo} style="width:100%;height:100%;object-fit:cover;" />
+        <img src={`${STRAPI_URL}${imgUrl}`} alt={`Imagen principal del artículo: ${titulo}`} style="width:100%;height:100%;object-fit:cover;" />
       </div>
-    </div>
+    </figure>
   }
 
   <!-- ARTICLE + SIDEBAR -->
   <div style="max-width:1280px;margin:0 auto;padding:0 32px 96px;display:grid;grid-template-columns:1fr 300px;gap:64px;align-items:start;" id="article-layout">
 
-    <!-- ARTICLE -->
-    <article>
+    <!-- ARTICLE BODY -->
+    <article aria-label={titulo}>
       <div set:html={articleHTML} />
-      <div style="margin-top:64px;padding-top:40px;border-top:1px solid #1a1a1a;">
+      <footer style="margin-top:64px;padding-top:40px;border-top:1px solid #1a1a1a;">
         <a href="/blog" class="back-link" style="color:#D4AF37;font-size:11px;font-weight:700;letter-spacing:0.3em;text-decoration:none;display:inline-flex;align-items:center;gap:12px;">
           ← VOLVER AL EDITORIAL
         </a>
-      </div>
+      </footer>
     </article>
 
     <!-- SIDEBAR -->
-    <aside style="position:sticky;top:96px;">
+    <aside aria-label="Contenido relacionado" style="position:sticky;top:96px;">
       {featuredProduct && fp &&
         <div style="background:#1A1A1A;border:1px solid rgba(212,175,55,0.1);overflow:hidden;margin-bottom:20px;">
           <div style="padding:20px;">
             <a href="/productos"
               style="display:block;border:1px solid rgba(212,175,55,0.3);color:#D4AF37;padding:12px;font-size:10px;font-weight:700;letter-spacing:0.25em;text-align:center;text-decoration:none;transition:all 0.2s;"
               onmouseover="this.style.background='rgba(212,175,55,0.1)'"
-              onmouseout="this.style.background='transparent'"
-            >
+              onmouseout="this.style.background='transparent'">
               VER PRODUCTOS →
             </a>
           </div>
         </div>
       }
 
-      <div style="padding:20px;border:1px solid rgba(212,175,55,0.08);">
+      <nav aria-label="Más artículos" style="padding:20px;border:1px solid rgba(212,175,55,0.08);">
         <p style="color:#D4AF37;font-size:10px;font-weight:700;letter-spacing:0.3em;margin-bottom:12px;">MÁS ARTÍCULOS</p>
         <a href="/blog" style="display:block;color:#888;font-size:13px;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#888'">
           Ver todos los artículos →
         </a>
-      </div>
+      </nav>
     </aside>
 
   </div>
@@ -176,7 +167,6 @@ const fpImgUrl = fp?.imagen?.data?.attributes?.formats?.medium?.url || fp?.image
 
 <style>
   .back-link:hover { gap: 20px !important; }
-
   @media (max-width: 900px) {
     #article-layout { grid-template-columns: 1fr !important; gap: 40px !important; }
     aside { position: static !important; }
