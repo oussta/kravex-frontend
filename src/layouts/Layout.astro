@@ -442,13 +442,23 @@ const { title, description } = Astro.props;
   }, { passive: true });
 
   // ── SEARCH ─────────────────────────────────
-  document.getElementById('search-toggle').addEventListener('click', function() {
-    var bar = document.getElementById('search-bar');
-    bar.style.transform = 'translateY(0)';
-    bar.style.opacity = '1';
-    bar.style.pointerEvents = 'all';
-    document.getElementById('search-bar-input').focus();
-  });
+document.getElementById('search-toggle').addEventListener('click', function() {
+  var bar = document.getElementById('search-bar');
+  bar.style.transform = 'translateY(0)';
+  bar.style.opacity = '1';
+  bar.style.pointerEvents = 'all';
+  document.getElementById('search-bar-input').focus();
+});
+
+// Submit search on Enter key
+document.getElementById('search-bar-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    var val = this.value.trim();
+    if (val) {
+      window.location.href = '/productos?search=' + encodeURIComponent(val);
+    }
+  }
+});
   document.getElementById('search-close').addEventListener('click', function() {
     var bar = document.getElementById('search-bar');
     bar.style.transform = 'translateY(-100%)';
