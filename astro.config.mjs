@@ -7,7 +7,16 @@ export default defineConfig({
   site: 'https://kravex-frontend.vercel.app',
   output: 'server',
   adapter: vercel(),
-  integrations: [sitemap()],
+  integrations: [
+    sitemap({
+      customPages: [
+        'https://kravex-frontend.vercel.app/',
+        'https://kravex-frontend.vercel.app/productos',
+        'https://kravex-frontend.vercel.app/blog',
+        'https://kravex-frontend.vercel.app/contacto',
+      ]
+    })
+  ],
   vite: {
     plugins: [tailwindcss()]
   }

@@ -197,46 +197,88 @@ import Layout from '../layouts/Layout.astro';
 </style>
 
 <script>
-  const patterns = {
-    nombre: /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]{2,60}$/,
-    email: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+  // ═══════════════════════════════════════════
+  // LOCALSTORAGE - save & restore form values
+  // ═══════════════════════════════════════════
+  var LS_CONTACT = 'kravex_contact_form';
+
+  function cfSave() {
+    var data = {
+      nombre:   document.getElementById('field-nombre').value   || '',
+      email:    document.getElementById('field-email').value    || '',
+      telefono: document.getElementById('field-telefono').value || '',
+      asunto:   document.getElementById('field-asunto').value   || '',
+      mensaje:  document.getElementById('field-mensaje').value  || ''
+    };
+    try { localStorage.setItem(LS_CONTACT, JSON.stringify(data)); } catch(e) {}
+  }
+
+  function cfLoad() {
+    try {
+      var saved = JSON.parse(localStorage.getItem(LS_CONTACT) || '{}');
+      if (saved.nombre)   document.getElementById('field-nombre').value   = saved.nombre;
+      if (saved.email)    document.getElementById('field-email').value    = saved.email;
+      if (saved.telefono) document.getElementById('field-telefono').value = saved.telefono;
+      if (saved.asunto)   document.getElementById('field-asunto').value   = saved.asunto;
+      if (saved.mensaje)  document.getElementById('field-mensaje').value  = saved.mensaje;
+    } catch(e) {}
+  }
+
+  // Load saved values on page load
+  cfLoad();
+
+  // Save on every input change
+  ['field-nombre', 'field-email', 'field-telefono', 'field-asunto', 'field-mensaje'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', cfSave);
+      el.addEventListener('change', cfSave);
+    }
+  });
+
+  // ═══════════════════════════════════════════
+  // VALIDATION
+  // ═══════════════════════════════════════════
+  var patterns = {
+    nombre:   /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]{2,60}$/,
+    email:    /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
     telefono: /^(\+34|0034|34)?[\s\-]?[6789]\d{8}$|^$/,
-    mensaje: /^[\s\S]{10,1000}$/,
+    mensaje:  /^[\s\S]{10,1000}$/
   };
 
-  const errorMessages = {
-    nombre: 'El nombre debe tener entre 2 y 60 caracteres (solo letras)',
-    email: 'Introduce un email válido (ej: nombre@dominio.com)',
+  var errorMessages = {
+    nombre:   'El nombre debe tener entre 2 y 60 caracteres (solo letras)',
+    email:    'Introduce un email válido (ej: nombre@dominio.com)',
     telefono: 'Introduce un teléfono español válido (ej: +34 600 000 000)',
-    mensaje: 'El mensaje debe tener entre 10 y 1000 caracteres',
-    asunto: 'Por favor selecciona un asunto',
+    mensaje:  'El mensaje debe tener entre 10 y 1000 caracteres',
+    asunto:   'Por favor selecciona un asunto'
   };
 
   function showError(fieldId, message) {
-    const input = document.getElementById(`field-${fieldId}`);
-    const error = document.getElementById(`error-${fieldId}`);
+    var input = document.getElementById('field-' + fieldId);
+    var error = document.getElementById('error-' + fieldId);
     if (input) input.style.borderColor = '#DC2626';
     if (error) { error.textContent = message; error.style.display = 'block'; }
   }
 
   function clearError(fieldId) {
-    const input = document.getElementById(`field-${fieldId}`);
-    const error = document.getElementById(`error-${fieldId}`);
+    var input = document.getElementById('field-' + fieldId);
+    var error = document.getElementById('error-' + fieldId);
     if (input) input.style.borderColor = '#10B981';
     if (error) error.style.display = 'none';
   }
 
   function resetField(fieldId) {
-    const input = document.getElementById(`field-${fieldId}`);
-    const error = document.getElementById(`error-${fieldId}`);
+    var input = document.getElementById('field-' + fieldId);
+    var error = document.getElementById('error-' + fieldId);
     if (input) input.style.borderColor = '#222';
     if (error) error.style.display = 'none';
   }
 
   function validateField(fieldId) {
-    const input = document.getElementById(`field-${fieldId}`);
+    var input = document.getElementById('field-' + fieldId);
     if (!input) return true;
-    const value = input.value.trim();
+    var value = input.value.trim();
 
     if (fieldId === 'asunto') {
       if (!value) { showError('asunto', errorMessages.asunto); return false; }
@@ -244,10 +286,13 @@ import Layout from '../layouts/Layout.astro';
     }
     if (fieldId === 'telefono') {
       if (value === '') { clearError('telefono'); return true; }
-      if (!patterns.telefono.test(value.replace(/\s/g, ''))) { showError('telefono', errorMessages.telefono); return false; }
+      if (!patterns.telefono.test(value.replace(/\s/g, ''))) {
+        showError('telefono', errorMessages.telefono); return false;
+      }
       clearError('telefono'); return true;
     }
-    const pattern = patterns[fieldId];
+
+    var pattern = patterns[fieldId];
     if (!pattern) return true;
     if (!value) { showError(fieldId, 'Este campo es obligatorio'); return false; }
     if (!pattern.test(value)) { showError(fieldId, errorMessages[fieldId]); return false; }
@@ -255,44 +300,51 @@ import Layout from '../layouts/Layout.astro';
     return true;
   }
 
-  ['nombre', 'email', 'telefono', 'mensaje'].forEach(fieldId => {
-    const input = document.getElementById(`field-${fieldId}`);
+  ['nombre', 'email', 'telefono', 'mensaje'].forEach(function(fieldId) {
+    var input = document.getElementById('field-' + fieldId);
     if (!input) return;
-    input.addEventListener('focus', () => {
+    input.addEventListener('focus', function() {
       if (input.style.borderColor !== '#DC2626') input.style.borderColor = '#D4AF37';
     });
-    input.addEventListener('blur', () => {
+    input.addEventListener('blur', function() {
       if (input.value.trim() === '' && fieldId !== 'telefono') resetField(fieldId);
       else validateField(fieldId);
     });
-    input.addEventListener('input', () => {
+    input.addEventListener('input', function() {
       if (input.style.borderColor === '#DC2626') validateField(fieldId);
     });
   });
 
-  const asuntoSelect = document.getElementById('field-asunto');
-  asuntoSelect?.addEventListener('blur', () => validateField('asunto'));
-  asuntoSelect?.addEventListener('change', () => validateField('asunto'));
+  var asuntoSelect = document.getElementById('field-asunto');
+  if (asuntoSelect) {
+    asuntoSelect.addEventListener('blur', function() { validateField('asunto'); });
+    asuntoSelect.addEventListener('change', function() { validateField('asunto'); });
+  }
 
-  document.getElementById('contact-form')?.addEventListener('submit', function(e) {
+  // ═══════════════════════════════════════════
+  // SUBMIT
+  // ═══════════════════════════════════════════
+  document.getElementById('contact-form').addEventListener('submit', function(e) {
     e.preventDefault();
-    const fields = ['nombre', 'email', 'telefono', 'asunto', 'mensaje'];
-    const allValid = fields.map(f => validateField(f)).every(r => r === true);
+    var fields = ['nombre', 'email', 'telefono', 'asunto', 'mensaje'];
+    var allValid = fields.map(function(f) { return validateField(f); }).every(function(r) { return r === true; });
 
     if (!allValid) {
-      const firstError = document.querySelector('[role="alert"]:not([style*="display: none"])');
-      firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      var firstError = document.querySelector('[role="alert"]:not([style*="display: none"])');
+      if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
-    const btn = document.getElementById('submit-btn') as HTMLButtonElement;
+    var btn = document.getElementById('submit-btn');
     btn.textContent = 'ENVIANDO...';
     btn.style.background = '#555';
     btn.disabled = true;
 
-    setTimeout(() => {
-      document.getElementById('contact-form')!.style.display = 'none';
-      document.getElementById('thank-you')!.style.display = 'block';
+    setTimeout(function() {
+      // Clear localStorage after successful send
+      try { localStorage.removeItem(LS_CONTACT); } catch(e) {}
+      document.getElementById('contact-form').style.display = 'none';
+      document.getElementById('thank-you').style.display = 'block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }, 1200);
   });
