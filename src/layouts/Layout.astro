@@ -155,7 +155,418 @@ const { title, description } = Astro.props;
       </div>
     </div>
   </footer>
+  <!-- CHECKOUT MODAL - paste this before closing </body> in Layout.astro -->
 
+<!-- CHECKOUT OVERLAY -->
+<div id="checkout-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:500; align-items:center; justify-content:center; padding:20px; overflow-y:auto;">
+  
+  <!-- SUCCESS STATE -->
+  <div id="checkout-success" style="display:none; text-align:center; max-width:480px; margin:0 auto; padding:60px 40px;">
+    <div style="width:80px; height:80px; border:2px solid #D4AF37; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 32px; font-size:36px; color:#D4AF37; animation: popIn 0.4s ease;">✓</div>
+    <p style="color:#D4AF37; font-size:10px; font-weight:700; letter-spacing:0.4em; margin-bottom:16px;">PEDIDO CONFIRMADO</p>
+    <h2 style="color:#fff; font-size:32px; font-weight:700; letter-spacing:-0.02em; margin-bottom:16px;">¡Gracias por tu compra!</h2>
+    <p style="color:#666; font-size:15px; line-height:1.8; margin-bottom:12px;">Tu pedido ha sido procesado correctamente.</p>
+    <p style="color:#555; font-size:14px; line-height:1.8; margin-bottom:40px;">En breve recibirás los detalles de tu envío. Gracias por confiar en <span style="color:#D4AF37; font-weight:700;">KRAVEX</span>. 👑</p>
+    <button id="success-close" type="button" style="background:#D4AF37; color:#000; border:none; padding:16px 48px; font-size:11px; font-weight:800; letter-spacing:0.3em; cursor:pointer; font-family:inherit;">
+      VOLVER A LA TIENDA
+    </button>
+  </div>
+
+  <!-- CHECKOUT FORM -->
+  <div id="checkout-box" style="background:#0F0F0F; border:1px solid rgba(212,175,55,0.15); max-width:860px; width:100%; position:relative; display:grid; grid-template-columns:1fr 1fr; overflow:hidden;">
+    
+    <!-- CLOSE -->
+    <button id="checkout-close" type="button" aria-label="Cerrar checkout" style="position:absolute; top:20px; right:20px; background:none; border:none; color:#444; font-size:22px; cursor:pointer; z-index:10; line-height:1; transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#444'">✕</button>
+
+    <!-- LEFT: CARD PREVIEW + ORDER SUMMARY -->
+    <div style="background:#111; padding:48px 40px; display:flex; flex-direction:column; gap:40px;">
+      
+      <!-- LIVE CARD -->
+      <div>
+        <p style="color:#D4AF37; font-size:10px; font-weight:700; letter-spacing:0.3em; margin-bottom:20px;">VISTA PREVIA</p>
+        <div id="card-preview" style="background:linear-gradient(135deg, #1a2a2a 0%, #0d1f1f 50%, #1a2a1a 100%); border-radius:12px; padding:28px 28px 24px; position:relative; aspect-ratio:1.586; overflow:hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.6);">
+          <!-- Shine effect -->
+          <div style="position:absolute; inset:0; background:linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%); pointer-events:none;"></div>
+          <!-- Circles decoration -->
+          <div style="position:absolute; right:-30px; top:-30px; width:180px; height:180px; border-radius:50%; background:rgba(212,175,55,0.04);"></div>
+          <div style="position:absolute; right:-10px; top:-10px; width:120px; height:120px; border-radius:50%; background:rgba(212,175,55,0.06);"></div>
+          
+          <!-- VISA logo -->
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:32px;">
+            <div style="width:40px; height:28px; background:rgba(212,175,55,0.15); border-radius:4px; display:flex; align-items:center; justify-content:center;">
+              <div style="width:20px; height:6px; background:linear-gradient(90deg, #D4AF37, #B8941F); border-radius:1px;"></div>
+            </div>
+            <span style="color:rgba(212,175,55,0.6); font-size:18px; font-weight:800; letter-spacing:0.1em; font-style:italic;">VISA</span>
+          </div>
+          
+          <!-- Card Number -->
+          <p id="card-num-display" style="color:rgba(255,255,255,0.9); font-size:18px; letter-spacing:0.22em; font-weight:300; margin-bottom:24px; font-family:monospace;">1234 1234 1234 1234</p>
+          
+          <!-- Bottom row -->
+          <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+            <div>
+              <p style="color:rgba(255,255,255,0.3); font-size:8px; letter-spacing:0.2em; margin-bottom:4px;">CARD HOLDER</p>
+              <p id="card-name-display" style="color:rgba(255,255,255,0.85); font-size:12px; letter-spacing:0.1em; font-weight:500; text-transform:uppercase;">NOMBRE APELLIDO</p>
+            </div>
+            <div style="text-align:right;">
+              <div style="display:flex; gap:16px;">
+                <div>
+                  <p style="color:rgba(255,255,255,0.3); font-size:8px; letter-spacing:0.2em; margin-bottom:4px;">EXP. DATE</p>
+                  <p id="card-exp-display" style="color:rgba(255,255,255,0.85); font-size:12px; letter-spacing:0.1em; font-family:monospace;">MM/AA</p>
+                </div>
+                <div>
+                  <p style="color:rgba(255,255,255,0.3); font-size:8px; letter-spacing:0.2em; margin-bottom:4px;">CVC</p>
+                  <p id="card-cvc-display" style="color:rgba(255,255,255,0.85); font-size:12px; letter-spacing:0.1em; font-family:monospace;">•••</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ORDER SUMMARY -->
+      <div>
+        <p style="color:#D4AF37; font-size:10px; font-weight:700; letter-spacing:0.3em; margin-bottom:16px;">RESUMEN DEL PEDIDO</p>
+        <div id="checkout-items" style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px; max-height:160px; overflow-y:auto;">
+          <!-- filled by JS -->
+        </div>
+        <div style="border-top:1px solid rgba(212,175,55,0.1); padding-top:14px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="color:#888; font-size:12px; letter-spacing:0.1em;">TOTAL</span>
+          <span id="checkout-total" style="color:#D4AF37; font-size:22px; font-weight:700;">€0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: FORM -->
+    <div style="padding:48px 40px; overflow-y:auto; max-height:90vh;">
+      <p style="color:#D4AF37; font-size:10px; font-weight:700; letter-spacing:0.4em; margin-bottom:8px;">FINALIZAR COMPRA</p>
+      <h2 style="color:#fff; font-size:22px; font-weight:700; letter-spacing:-0.02em; margin-bottom:32px;">Datos de Pago</h2>
+
+      <form id="checkout-form" novalidate>
+
+        <!-- Card Number -->
+        <div style="margin-bottom:20px;">
+          <label for="co-cardnum" style="display:block; color:#555; font-size:10px; font-weight:700; letter-spacing:0.25em; margin-bottom:8px;">NÚMERO DE TARJETA *</label>
+          <input type="text" id="co-cardnum" maxlength="19" placeholder="1234 1234 1234 1234" autocomplete="cc-number"
+            style="width:100%; background:transparent; border:1px solid #222; color:#fff; padding:13px 16px; font-size:14px; outline:none; font-family:monospace; letter-spacing:0.1em; transition:border-color 0.2s; box-sizing:border-box;" />
+          <p id="err-cardnum" style="color:#DC2626; font-size:11px; margin-top:5px; display:none;"></p>
+        </div>
+
+        <!-- Name -->
+        <div style="margin-bottom:20px;">
+          <label for="co-name" style="display:block; color:#555; font-size:10px; font-weight:700; letter-spacing:0.25em; margin-bottom:8px;">TITULAR DE LA TARJETA *</label>
+          <input type="text" id="co-name" placeholder="Como aparece en la tarjeta" autocomplete="cc-name"
+            style="width:100%; background:transparent; border:1px solid #222; color:#fff; padding:13px 16px; font-size:14px; outline:none; font-family:inherit; transition:border-color 0.2s; box-sizing:border-box;" />
+          <p id="err-name" style="color:#DC2626; font-size:11px; margin-top:5px; display:none;"></p>
+        </div>
+
+        <!-- Expiry + CVC -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+          <div>
+            <label for="co-expiry" style="display:block; color:#555; font-size:10px; font-weight:700; letter-spacing:0.25em; margin-bottom:8px;">FECHA EXPIRACIÓN *</label>
+            <input type="text" id="co-expiry" maxlength="5" placeholder="MM/AA" autocomplete="cc-exp"
+              style="width:100%; background:transparent; border:1px solid #222; color:#fff; padding:13px 16px; font-size:14px; outline:none; font-family:monospace; transition:border-color 0.2s; box-sizing:border-box;" />
+            <p id="err-expiry" style="color:#DC2626; font-size:11px; margin-top:5px; display:none;"></p>
+          </div>
+          <div>
+            <label for="co-cvc" style="display:block; color:#555; font-size:10px; font-weight:700; letter-spacing:0.25em; margin-bottom:8px;">CVC *</label>
+            <input type="text" id="co-cvc" maxlength="4" placeholder="123" autocomplete="cc-csc"
+              style="width:100%; background:transparent; border:1px solid #222; color:#fff; padding:13px 16px; font-size:14px; outline:none; font-family:monospace; transition:border-color 0.2s; box-sizing:border-box;" />
+            <p id="err-cvc" style="color:#DC2626; font-size:11px; margin-top:5px; display:none;"></p>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div style="margin-bottom:20px;">
+          <label for="co-email" style="display:block; color:#555; font-size:10px; font-weight:700; letter-spacing:0.25em; margin-bottom:8px;">EMAIL *</label>
+          <input type="email" id="co-email" placeholder="tu@email.com" autocomplete="email"
+            style="width:100%; background:transparent; border:1px solid #222; color:#fff; padding:13px 16px; font-size:14px; outline:none; font-family:inherit; transition:border-color 0.2s; box-sizing:border-box;" />
+          <p id="err-email" style="color:#DC2626; font-size:11px; margin-top:5px; display:none;"></p>
+        </div>
+
+        <!-- Promo Code -->
+        <div style="margin-bottom:32px;">
+          <label for="co-promo" style="display:block; color:#555; font-size:10px; font-weight:700; letter-spacing:0.25em; margin-bottom:8px;">CÓDIGO PROMOCIONAL <span style="color:#333; font-weight:400;">(opcional)</span></label>
+          <div style="display:flex; gap:8px;">
+            <input type="text" id="co-promo" placeholder="KRAVEX10"
+              style="flex:1; background:transparent; border:1px solid #222; color:#fff; padding:13px 16px; font-size:14px; outline:none; font-family:inherit; transition:border-color 0.2s; box-sizing:border-box; text-transform:uppercase;" />
+            <button type="button" id="apply-promo"
+              style="background:transparent; border:1px solid #333; color:#888; padding:13px 16px; font-size:10px; font-weight:700; letter-spacing:0.2em; cursor:pointer; font-family:inherit; white-space:nowrap; transition:all 0.2s;"
+              onmouseover="this.style.borderColor='#D4AF37';this.style.color='#D4AF37'"
+              onmouseout="this.style.borderColor='#333';this.style.color='#888'">
+              APLICAR
+            </button>
+          </div>
+          <p id="promo-msg" style="font-size:11px; margin-top:5px; display:none;"></p>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" id="checkout-submit"
+          style="width:100%; background:#D4AF37; color:#000; border:none; padding:18px; font-size:11px; font-weight:800; letter-spacing:0.3em; cursor:pointer; font-family:inherit; transition:background 0.2s;"
+          onmouseover="this.style.background='#B8941F'"
+          onmouseout="this.style.background='#D4AF37'">
+          CONFIRMAR COMPRA
+        </button>
+
+        <p style="color:#333; font-size:11px; text-align:center; margin-top:16px;">🔒 Pago 100% seguro y encriptado</p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes popIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    70% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  #checkout-overlay { scrollbar-width: thin; scrollbar-color: #222 transparent; }
+  @media (max-width: 700px) {
+    #checkout-box { grid-template-columns: 1fr !important; }
+    #checkout-box > div:first-child { padding: 32px 24px !important; }
+    #checkout-box > div:last-child { padding: 32px 24px !important; max-height: none !important; }
+  }
+</style>
+
+<script>
+  // ── VALID PROMO CODES ─────────────────────────────────────
+  const PROMO_CODES = { 'KRAVEX10': 10, 'KRAVEX20': 20, 'PREMIUM': 15 };
+  let appliedDiscount = 0;
+
+  // ── REGEX PATTERNS ────────────────────────────────────────
+  const patterns = {
+    cardnum: /^\d{4}\s\d{4}\s\d{4}\s\d{4}$/,
+    name:    /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]{2,60}$/,
+    expiry:  /^(0[1-9]|1[0-2])\/\d{2}$/,
+    cvc:     /^\d{3,4}$/,
+    email:   /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+  };
+
+  const LS_KEY = 'kravex_checkout';
+
+  // ── SAVE / LOAD FROM LOCALSTORAGE ─────────────────────────
+  function saveToStorage() {
+    const data = {
+      cardnum: (document.getElementById('co-cardnum') as HTMLInputElement)?.value || '',
+      name:    (document.getElementById('co-name') as HTMLInputElement)?.value || '',
+      expiry:  (document.getElementById('co-expiry') as HTMLInputElement)?.value || '',
+      email:   (document.getElementById('co-email') as HTMLInputElement)?.value || '',
+      promo:   (document.getElementById('co-promo') as HTMLInputElement)?.value || '',
+    };
+    localStorage.setItem(LS_KEY, JSON.stringify(data));
+  }
+
+  function loadFromStorage() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+      if (saved.cardnum) { (document.getElementById('co-cardnum') as HTMLInputElement).value = saved.cardnum; updateCard(); }
+      if (saved.name)    { (document.getElementById('co-name') as HTMLInputElement).value = saved.name; updateCard(); }
+      if (saved.expiry)  { (document.getElementById('co-expiry') as HTMLInputElement).value = saved.expiry; updateCard(); }
+      if (saved.email)   { (document.getElementById('co-email') as HTMLInputElement).value = saved.email; }
+      if (saved.promo)   { (document.getElementById('co-promo') as HTMLInputElement).value = saved.promo; }
+    } catch(e) {}
+  }
+
+  // ── LIVE CARD UPDATE ──────────────────────────────────────
+  function updateCard() {
+    const num    = (document.getElementById('co-cardnum') as HTMLInputElement)?.value || '';
+    const name   = (document.getElementById('co-name') as HTMLInputElement)?.value || '';
+    const expiry = (document.getElementById('co-expiry') as HTMLInputElement)?.value || '';
+    const cvc    = (document.getElementById('co-cvc') as HTMLInputElement)?.value || '';
+
+    const numDisplay = document.getElementById('card-num-display');
+    const nameDisplay = document.getElementById('card-name-display');
+    const expDisplay = document.getElementById('card-exp-display');
+    const cvcDisplay = document.getElementById('card-cvc-display');
+
+    if (numDisplay) numDisplay.textContent = num || '1234 1234 1234 1234';
+    if (nameDisplay) nameDisplay.textContent = name.toUpperCase() || 'NOMBRE APELLIDO';
+    if (expDisplay) expDisplay.textContent = expiry || 'MM/AA';
+    if (cvcDisplay) cvcDisplay.textContent = cvc ? '•'.repeat(cvc.length) : '•••';
+  }
+
+  // ── FORMAT INPUTS ─────────────────────────────────────────
+  document.getElementById('co-cardnum')?.addEventListener('input', function(this: HTMLInputElement) {
+    let val = this.value.replace(/\D/g, '').slice(0, 16);
+    this.value = val.replace(/(.{4})/g, '$1 ').trim();
+    updateCard(); saveToStorage();
+  });
+
+  document.getElementById('co-expiry')?.addEventListener('input', function(this: HTMLInputElement) {
+    let val = this.value.replace(/\D/g, '').slice(0, 4);
+    if (val.length >= 2) val = val.slice(0,2) + '/' + val.slice(2);
+    this.value = val;
+    updateCard(); saveToStorage();
+  });
+
+  document.getElementById('co-cvc')?.addEventListener('input', function(this: HTMLInputElement) {
+    this.value = this.value.replace(/\D/g, '').slice(0, 4);
+    updateCard(); saveToStorage();
+  });
+
+  document.getElementById('co-name')?.addEventListener('input', function() { updateCard(); saveToStorage(); });
+  document.getElementById('co-email')?.addEventListener('input', function() { saveToStorage(); });
+  document.getElementById('co-promo')?.addEventListener('input', function(this: HTMLInputElement) {
+    this.value = this.value.toUpperCase();
+    saveToStorage();
+  });
+
+  // ── FIELD VALIDATION ──────────────────────────────────────
+  function showErr(id: string, msg: string) {
+    const el = document.getElementById(id);
+    const input = document.getElementById(id.replace('err-', 'co-'));
+    if (el) { el.textContent = msg; el.style.display = 'block'; }
+    if (input) (input as HTMLElement).style.borderColor = '#DC2626';
+  }
+
+  function clearErr(id: string) {
+    const el = document.getElementById(id);
+    const input = document.getElementById(id.replace('err-', 'co-'));
+    if (el) el.style.display = 'none';
+    if (input) (input as HTMLElement).style.borderColor = '#10B981';
+  }
+
+  function validateField(field: string): boolean {
+    const input = document.getElementById(`co-${field}`) as HTMLInputElement;
+    if (!input) return true;
+    const val = input.value.trim();
+    const pattern = patterns[field as keyof typeof patterns];
+    if (!val) { showErr(`err-${field}`, 'Este campo es obligatorio'); return false; }
+    if (pattern && !pattern.test(val)) {
+      const msgs: Record<string,string> = {
+        cardnum: 'Número de tarjeta inválido (16 dígitos)',
+        name:    'Nombre inválido (solo letras)',
+        expiry:  'Formato inválido (MM/AA)',
+        cvc:     'CVC inválido (3-4 dígitos)',
+        email:   'Email inválido',
+      };
+      showErr(`err-${field}`, msgs[field] || 'Campo inválido');
+      return false;
+    }
+    clearErr(`err-${field}`);
+    return true;
+  }
+
+  // Blur validation on each field
+  ['cardnum','name','expiry','cvc','email'].forEach(field => {
+    const input = document.getElementById(`co-${field}`);
+    input?.addEventListener('blur', () => validateField(field));
+    input?.addEventListener('focus', function(this: HTMLElement) {
+      if (this.style.borderColor !== '#DC2626') this.style.borderColor = '#D4AF37';
+    });
+  });
+
+  // ── PROMO CODE ────────────────────────────────────────────
+  document.getElementById('apply-promo')?.addEventListener('click', () => {
+    const code = (document.getElementById('co-promo') as HTMLInputElement).value.trim().toUpperCase();
+    const msg = document.getElementById('promo-msg')!;
+    if (!code) { msg.style.display = 'none'; return; }
+    if (PROMO_CODES[code as keyof typeof PROMO_CODES]) {
+      appliedDiscount = PROMO_CODES[code as keyof typeof PROMO_CODES];
+      msg.textContent = `✓ Código aplicado — ${appliedDiscount}% de descuento`;
+      msg.style.color = '#10B981';
+      msg.style.display = 'block';
+      updateCheckoutTotal();
+    } else {
+      appliedDiscount = 0;
+      msg.textContent = '✗ Código no válido';
+      msg.style.color = '#DC2626';
+      msg.style.display = 'block';
+      updateCheckoutTotal();
+    }
+  });
+
+  // ── ORDER SUMMARY ─────────────────────────────────────────
+  function updateCheckoutSummary() {
+    const items = document.getElementById('checkout-items')!;
+    const totalEl = document.getElementById('checkout-total')!;
+    try {
+      const cart = JSON.parse(localStorage.getItem('kravex-cart') || '[]');
+      if (cart.length === 0) {
+        items.innerHTML = '<p style="color:#444;font-size:13px;">El carrito está vacío</p>';
+        totalEl.textContent = '€0';
+        return;
+      }
+      items.innerHTML = cart.map((item: any) => `
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+          <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+            ${item.img ? `<img src="${item.img}" alt="${item.name}" style="width:36px;height:36px;object-fit:cover;background:#1a1a1a;flex-shrink:0;" />` : ''}
+            <div style="min-width:0;">
+              <p style="color:#ccc;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.name}</p>
+              <p style="color:#555;font-size:11px;">x${item.qty}</p>
+            </div>
+          </div>
+          <span style="color:#D4AF37;font-size:13px;font-weight:700;white-space:nowrap;">€${(item.price * item.qty).toFixed(2)}</span>
+        </div>
+      `).join('');
+      updateCheckoutTotal();
+    } catch(e) {}
+  }
+
+  function updateCheckoutTotal() {
+    try {
+      const cart = JSON.parse(localStorage.getItem('kravex-cart') || '[]');
+      const subtotal = cart.reduce((sum: number, i: any) => sum + i.price * i.qty, 0);
+      const discount = appliedDiscount > 0 ? subtotal * (appliedDiscount / 100) : 0;
+      const total = subtotal - discount;
+      const totalEl = document.getElementById('checkout-total')!;
+      if (appliedDiscount > 0) {
+        totalEl.innerHTML = `<span style="color:#555;font-size:14px;text-decoration:line-through;margin-right:8px;">€${subtotal.toFixed(2)}</span>€${total.toFixed(2)}`;
+      } else {
+        totalEl.textContent = `€${total.toFixed(2)}`;
+      }
+    } catch(e) {}
+  }
+
+  // ── OPEN / CLOSE CHECKOUT ─────────────────────────────────
+  window.openCheckout = function() {
+    const cart = JSON.parse(localStorage.getItem('kravex-cart') || '[]');
+    if (cart.length === 0) return;
+    const overlay = document.getElementById('checkout-overlay')!;
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    updateCheckoutSummary();
+    loadFromStorage();
+    updateCard();
+  };
+
+  function closeCheckout() {
+    document.getElementById('checkout-overlay')!.style.display = 'none';
+    document.getElementById('checkout-success')!.style.display = 'none';
+    document.getElementById('checkout-box')!.style.display = 'grid';
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('checkout-close')?.addEventListener('click', closeCheckout);
+  document.getElementById('checkout-overlay')?.addEventListener('click', (e) => {
+    if (e.target === document.getElementById('checkout-overlay')) closeCheckout();
+  });
+  document.getElementById('success-close')?.addEventListener('click', () => {
+    closeCheckout();
+    localStorage.removeItem('kravex-cart');
+    localStorage.removeItem(LS_KEY);
+    window.dispatchEvent(new Event('cart-updated'));
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeCheckout(); });
+
+  // ── SUBMIT ────────────────────────────────────────────────
+  document.getElementById('checkout-form')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const fields = ['cardnum','name','expiry','cvc','email'];
+    const allValid = fields.map(f => validateField(f)).every(Boolean);
+    if (!allValid) return;
+
+    const btn = document.getElementById('checkout-submit') as HTMLButtonElement;
+    btn.textContent = 'PROCESANDO...';
+    btn.style.background = '#555';
+    btn.disabled = true;
+
+    setTimeout(() => {
+      document.getElementById('checkout-box')!.style.display = 'none';
+      document.getElementById('checkout-success')!.style.display = 'block';
+    }, 1500);
+  });
+</script>
 </body>
 </html>
 
