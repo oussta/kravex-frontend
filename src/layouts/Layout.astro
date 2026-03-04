@@ -79,7 +79,7 @@ const { title, description } = Astro.props;
         <span style="color:#fff;">TOTAL</span>
         <span id="cart-total" style="color:#D4AF37;">€0</span>
       </div>
-      <button style="width:100%;background:#D4AF37;color:#000;border:none;padding:16px;font-size:11px;font-weight:800;letter-spacing:0.3em;cursor:pointer;font-family:inherit;">FINALIZAR COMPRA</button>
+<button onclick="closeCart(); openCheckout();" style="width:100%;background:#D4AF37;color:#000;border:none;padding:16px;font-size:11px;font-weight:800;letter-spacing:0.3em;cursor:pointer;font-family:inherit;">FINALIZAR COMPRA</button>
     </div>
   </div>
 
@@ -99,7 +99,7 @@ const { title, description } = Astro.props;
         <span style="color:#fff;">TOTAL</span>
         <span id="cart-total-mobile" style="color:#D4AF37;">€0</span>
       </div>
-      <button style="width:100%;background:#D4AF37;color:#000;border:none;padding:16px;font-size:11px;font-weight:800;letter-spacing:0.3em;cursor:pointer;font-family:inherit;border-radius:4px;">FINALIZAR COMPRA</button>
+      <button onclick="closeCart(); openCheckout();" style="width:100%;background:#D4AF37;color:#000;border:none;padding:16px;font-size:11px;font-weight:800;letter-spacing:0.3em;cursor:pointer;font-family:inherit;border-radius:4px;">FINALIZAR COMPRA</button>
     </div>
   </div>
 
